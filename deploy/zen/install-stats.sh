@@ -58,7 +58,17 @@ rollback_config() {
   fi
 }
 sed "s|__NODE_BINARY__|${node_binary}|g" "${release}/deploy/zen/pwnymarket-stats.apache.conf" > "${backup}/candidate.conf"
+check_report() {
+  local report=/var/lib/pwnymarket-stats/report/index.html
+  if [[ -L ${report} || ! -s ${report} ]] ||
+     [[ $(stat -c '%U:%G:%a' "${report}") != pwnystats:www-data:640 ]] ||
+     ! /usr/sbin/runuser -u www-data -- test -r "${report}"; then
+    echo "Statistics report missing, unsafe or unreadable by Apache." >&2
+    exit 4
+  fi
+}
 /usr/sbin/runuser -u pwnystats -- "${node_binary}" "${release}/deploy/zen/generate-stats.mjs"
+check_report
 a2enmod auth_basic authn_file authz_user alias dir setenvif >/dev/null
 install -m 0644 -o root -g root "${backup}/candidate.conf" /etc/apache2/pwnymarket-stats-vhost.conf
 if ! apache2ctl configtest; then
@@ -83,5 +93,6 @@ install -m 0644 -o root -g root "${release}/deploy/zen/pwnymarket-stats.timer" /
 systemctl daemon-reload
 systemctl enable --now pwnymarket-stats.timer >/dev/null
 systemctl start pwnymarket-stats.service
+check_report
 systemctl is-active --quiet pwnymarket-stats.timer
 echo "PRIVATE_GOACCESS_OK https://pwnymarket.fr/stats/"

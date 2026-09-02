@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 import { SECURITY_HEADERS } from '../../zen/security.mjs';
@@ -15,7 +16,7 @@ export function assertPublicSecurityHeaders(headers) {
 
 if (
   process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
+  import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href
 ) {
   try {
     for (const [path, expectedStatus] of [

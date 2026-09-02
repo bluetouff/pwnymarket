@@ -4,6 +4,7 @@ import {
   closeSync,
   fsyncSync,
   openSync,
+  realpathSync,
   renameSync,
   writeFileSync,
 } from 'node:fs';
@@ -59,7 +60,7 @@ export function renderReport(report, capped, now = new Date()) {
     })
     .join('');
   return page(
-    '<h1>Le trafic, sans le pistage.</h1><p>Rapport privé produit par GoAccess. Actualisé le ' +
+    '<h1>Les chiffres de fréquentation.</h1><p>Rapport privé produit par GoAccess. Actualisé le ' +
       escape(now.toISOString()) +
       ' (UTC).</p>' +
       '<p><strong>' +
@@ -76,7 +77,7 @@ export function renderReport(report, capped, now = new Date()) {
 }
 function page(body) {
   return (
-    '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>Statistiques privées · PwnyMarket</title><link rel="stylesheet" href="/assets/v2/styles.css"></head><body><main class="prose">' +
+    '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>Statistiques privées · PwnyMarket.fr</title><link rel="stylesheet" href="/assets/v3/styles.css"></head><body><main class="prose">' +
     body +
     '<p><a href="/">Retour aux non-marchés</a></p></main></body></html>'
   );
@@ -128,7 +129,10 @@ export function generate() {
   if (result.status !== 0 || result.error) throw new Error('GoAccess failed');
   publish(renderReport(JSON.parse(result.stdout), capped));
 }
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (
+  process.argv[1] &&
+  realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
   try {
     generate();
   } catch {

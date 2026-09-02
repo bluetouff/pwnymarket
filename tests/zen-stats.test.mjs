@@ -1,13 +1,20 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import {
+  copyFileSync,
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
+  statSync,
   symlinkSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import test from 'node:test';
 import {
   appendLog,
@@ -20,6 +27,50 @@ import { renderReport } from '../deploy/zen/generate-stats.mjs';
 
 const now = Date.parse('2026-09-02T12:00:00Z');
 const seconds = now / 1000;
+
+test('generator runs through a current release symlink and imports without publishing', () => {
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), 'pwny-stats-entry-')));
+  const release = join(dir, 'release');
+  const current = join(dir, 'current');
+  const report = join(dir, 'report');
+  mkdirSync(release);
+  mkdirSync(report);
+  symlinkSync(release, current, 'dir');
+  copyFileSync(
+    new URL('../deploy/zen/generate-stats.mjs', import.meta.url),
+    join(release, 'generate-stats.mjs'),
+  );
+  // Use the unmodified CLI with isolated empty input, never production log/report paths.
+  writeFileSync(
+    join(release, 'stats-data.mjs'),
+    `export const LOG_DIRECTORY = ${JSON.stringify(dir)};
+export const REPORT_DIRECTORY = ${JSON.stringify(report)};
+export function collectLogs() { return { input: '', capped: false }; }
+`,
+  );
+  const html = join(report, 'index.html');
+  const run = (args) =>
+    spawnSync(process.execPath, args, { encoding: 'utf8', timeout: 5000 });
+  const imported = run([
+    '--input-type=module',
+    '-e',
+    `await import(${JSON.stringify(pathToFileURL(join(current, 'generate-stats.mjs')).href)})`,
+  ]);
+  assert.equal(imported.status, 0, imported.stderr);
+  assert.equal(existsSync(html), false, 'import must not publish');
+  for (const path of [release, current]) {
+    const result = run([join(path, 'generate-stats.mjs')]);
+    assert.equal(result.status, 0, result.stderr);
+    assert.ok(existsSync(html), 'successful CLI must publish: ' + path);
+    assert.match(
+      readFileSync(html, 'utf8'),
+      /Pas encore de requêtes à compter/,
+    );
+    assert.equal(statSync(html).mode & 0o777, 0o640);
+    assert.equal(existsSync(join(report, 'index.html.next')), false);
+    unlinkSync(html);
+  }
+});
 
 test('statistics accepts only bounded route buckets, never client identifiers', () => {
   const entry = normalizeLogLine(seconds + ' 200 123 /about', now);
@@ -137,6 +188,16 @@ test('Apache statistics never logs raw client input and protects the only report
   assert.ok(
     installer.indexOf('htpasswd -cB') <
       installer.indexOf('install -m 0644 -o root -g root'),
+  );
+  assert.equal(
+    installer.split('\n').filter((line) => line === 'check_report').length,
+    2,
+  );
+  assert.match(installer, /runuser -u www-data -- test -r/);
+  assert.match(installer, /pwnystats:www-data:640/);
+  assert.ok(
+    installer.lastIndexOf('check_report') <
+      installer.indexOf('echo "PRIVATE_GOACCESS_OK'),
   );
   const unit = readFileSync(
     new URL('../deploy/zen/pwnymarket-stats.service', import.meta.url),

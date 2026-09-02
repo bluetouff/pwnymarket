@@ -12,6 +12,7 @@ import {
   VOTE_CHOICES,
 } from './security.mjs';
 import { VoteStore } from './store.mjs';
+import { renderArchives } from './archive.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const socketPath =
@@ -38,20 +39,34 @@ const assets = new Map([
   ['/og.png', ['og.png', 'image/png']],
   ['/about', ['about.html', 'text/html; charset=utf-8']],
   ['/privacy', ['privacy.html', 'text/html; charset=utf-8']],
+  ['/archives', ['archives.html', 'text/html; charset=utf-8']],
   ['/robots.txt', ['robots.txt', 'text/plain; charset=utf-8']],
 ]);
 // A new asset namespace prevents previously cached v1 JS/CSS breaking the new DOM.
 for (const path of ['/app.js', '/markets.js', '/styles.css', '/og.png']) {
   assets.set('/assets/v2' + path, assets.get(path));
 }
+// Keep the previous share card available to cached pages.
+assets.set('/assets/v2/og.png', ['og-v2.png', 'image/png']);
+assets.set('/assets/v3/og.png', ['og.png', 'image/png']);
+assets.set('/assets/v3/styles.css', ['styles.css', 'text/css; charset=utf-8']);
 for (const [path, asset] of assets) {
+  let body = readFileSync(join(root, 'public', asset[0]));
+  if (path === '/archives') {
+    body = Buffer.from(
+      body
+        .toString('utf8')
+        .replace('<!-- ARCHIVE_ENTRIES -->', renderArchives()),
+    );
+  }
   assets.set(path, {
-    body: readFileSync(join(root, 'public', asset[0])),
+    body,
     type: asset[1],
   });
 }
 
 const store = new VoteStore(ledgerPath);
+const notFoundPage = readFileSync(join(root, 'public', '404.html'));
 
 function send(response, status, body, headers = {}) {
   response.writeHead(status, { ...SECURITY_HEADERS, ...headers });
@@ -168,8 +183,20 @@ const server = createServer(async (request, response) => {
       return sendJson(response, 405, { error: 'method_not_allowed' });
     }
     const asset = assets.get(url.pathname);
-    if (!asset || url.search)
-      return sendJson(response, 404, { error: 'not_found' });
+    if (!asset || url.search) {
+      if (url.pathname.startsWith('/api/'))
+        return sendJson(response, 404, { error: 'not_found' });
+      return send(
+        response,
+        404,
+        request.method === 'HEAD' ? null : notFoundPage,
+        {
+          'Cache-Control': 'no-store, max-age=0',
+          'Content-Type': 'text/html; charset=utf-8',
+          'X-Robots-Tag': 'noindex',
+        },
+      );
+    }
     send(response, 200, request.method === 'HEAD' ? null : asset.body, {
       'Cache-Control': asset.type.startsWith('text/html')
         ? 'no-cache'

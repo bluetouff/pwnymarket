@@ -19,6 +19,7 @@ export const ROUTES = new Set([
   '/',
   '/about',
   '/privacy',
+  '/archives',
   '/api/votes',
   '/api/markets',
   '/assets',

@@ -1,17 +1,19 @@
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import {
   closeSync,
   existsSync,
   mkdtempSync,
   openSync,
   readFileSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { request } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import { isSupportedProductionRuntime } from '../deploy/zen/check-runtime.mjs';
 import { assertPublicSecurityHeaders } from '../deploy/zen/check-public-headers.mjs';
@@ -49,6 +51,40 @@ void test('production rejects EOL, unpatched, prerelease and unreviewed Node lin
   ]) {
     assert.equal(isSupportedProductionRuntime(version), true, version);
   }
+});
+
+void test('deployment checks execute through current and fail closed', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'pwny-check-entry-'));
+  const current = join(directory, 'current');
+  symlinkSync(fileURLToPath(new URL('..', import.meta.url)), current, 'dir');
+  const unsupported = join(directory, 'unsupported.mjs');
+  writeFileSync(
+    unsupported,
+    "Object.defineProperty(process.versions, 'node', { value: '20.19.2' });",
+  );
+  const runtime = spawnSync(
+    process.execPath,
+    ['--import', unsupported, join(current, 'deploy/zen/check-runtime.mjs')],
+    { encoding: 'utf8', timeout: 5000 },
+  );
+  assert.equal(runtime.status, 1);
+  assert.match(runtime.stderr, /Production requires patched LTS/);
+  const noNetwork = join(directory, 'offline.mjs');
+  writeFileSync(
+    noNetwork,
+    "globalThis.fetch = async () => { throw new Error('LOCAL_HEADER_PROBE'); };",
+  );
+  const headers = spawnSync(
+    process.execPath,
+    [
+      '--import',
+      noNetwork,
+      join(current, 'deploy/zen/check-public-headers.mjs'),
+    ],
+    { encoding: 'utf8', timeout: 5000 },
+  );
+  assert.equal(headers.status, 1);
+  assert.match(headers.stderr, /PUBLIC_HEADERS_FAILED: LOCAL_HEADER_PROBE/);
 });
 
 function unixRequest(
@@ -207,6 +243,71 @@ void test('home links to dedicated privacy, uses local lighter type and has no p
   assert.doesNotMatch(css, /url\(['"]?https?:/);
 });
 
+void test('privacy is short visitor copy and every public footer credits the creator', () => {
+  const privacy = readFileSync(
+    new URL('../zen/public/privacy.html', import.meta.url),
+    'utf8',
+  );
+  const main = privacy.match(/<main\b[^>]*>([\s\S]*?)<\/main>/)[1];
+  assert.match(main, /Le guichet de la vie privée/);
+  assert.match(main, /code propre à\s+chaque marché/);
+  assert.match(main, /quatorze derniers jours/);
+  assert.doesNotMatch(
+    main,
+    /HMAC|GoAccess|Apache|sudo|GitHub|secret|configur|déploi|\/etc\/|\/var\//i,
+  );
+  assert.ok(
+    main
+      .replace(/<[^>]+>/g, ' ')
+      .trim()
+      .split(/\s+/).length < 260,
+  );
+  for (const name of ['index', 'about', 'privacy', 'archives', '404']) {
+    const html = readFileSync(
+      new URL(`../zen/public/${name}.html`, import.meta.url),
+      'utf8',
+    );
+    assert.match(
+      html,
+      /<footer\b[^>]*>[\s\S]*powered by <a href="https:\/\/x\.com\/bluetouff">@bluetouff<\/a>[\s\S]*<\/footer>/,
+    );
+    assert.doesNotMatch(html.replace(/<[^>]+>/g, ' '), /[,.;]\s+pas\b/i);
+    assert.match(html, /<span class="brand-domain">\.fr<\/span/);
+    assert.match(html, /href="\/archives"/);
+    assert.match(html, /href="https:\/\/l0g\.fr\/">l0g\.fr<\/a>/);
+  }
+  const css = readFileSync(
+    new URL('../zen/public/styles.css', import.meta.url),
+    'utf8',
+  );
+  assert.match(css, /\.brand-domain \{\s*color: var\(--red\);/);
+});
+
+void test('social cards use the new branded image URL and actual dimensions', () => {
+  const html = readFileSync(
+    new URL('../zen/public/index.html', import.meta.url),
+    'utf8',
+  );
+  const png = readFileSync(new URL('../zen/public/og.png', import.meta.url));
+  const old = readFileSync(new URL('../zen/public/og-v2.png', import.meta.url));
+  assert.equal(png.subarray(1, 4).toString(), 'PNG');
+  assert.notDeepEqual(png, old);
+  for (const [label, value] of [
+    ['width', png.readUInt32BE(16)],
+    ['height', png.readUInt32BE(20)],
+  ]) {
+    assert.ok(html.includes(`property="og:image:${label}" content="${value}"`));
+  }
+  for (const attr of ['property="og:image"', 'name="twitter:image"']) {
+    assert.ok(
+      html.includes(
+        `${attr}\n      content="https://pwnymarket.fr/assets/v3/og.png"`,
+      ),
+    );
+  }
+  assert.match(html, /name="twitter:creator" content="@bluetouff"/);
+});
+
 void test('ledger refuses an append beyond capacity without changing the file', () => {
   const directory = mkdtempSync(join(tmpdir(), 'pwnymarket-capacity-'));
   const ledger = join(directory, 'votes.ndjson');
@@ -348,7 +449,7 @@ void test('production origin is aligned across runtime, Apache, TLS and metadata
   assert.match(html, /rel="canonical" href="https:\/\/pwnymarket\.fr\/"/);
   assert.match(
     html,
-    /property="og:image"[\s\S]*?content="https:\/\/pwnymarket\.fr\/assets\/v2\/og\.png"/,
+    /property="og:image"[\s\S]*?content="https:\/\/pwnymarket\.fr\/assets\/v3\/og\.png"/,
   );
 });
 
@@ -384,10 +485,13 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
   for (const path of [
     '/about',
     '/privacy',
+    '/archives',
     '/assets/v2/app.js',
     '/assets/v2/markets.js',
     '/assets/v2/styles.css',
     '/assets/v2/og.png',
+    '/assets/v3/og.png',
+    '/assets/v3/styles.css',
     '/markets.js',
     '/manrope-medium.ttf',
     '/marianne.png',
@@ -399,6 +503,37 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
       SECURITY_HEADERS['Content-Security-Policy'],
     );
   }
+  const archive = await unixRequest(socketPath, { path: '/archives' });
+  assert.match(archive.body, /70 000 dossiers/);
+  assert.match(archive.body, /774 000 personnes/);
+  assert.doesNotMatch(archive.body, /ARCHIVE_ENTRIES|<script\b/);
+  for (const path of [
+    '/404',
+    '/page-inconnue',
+    '/%3Cscript%3Ealert(1)%3C/script%3E',
+    '/.env',
+  ]) {
+    const missing = await unixRequest(socketPath, { path });
+    assert.equal(missing.status, 404);
+    assert.match(missing.headers['content-type'], /^text\/html/);
+    assert.equal(
+      missing.headers['content-security-policy'],
+      SECURITY_HEADERS['Content-Security-Policy'],
+    );
+    assert.equal(missing.headers['x-robots-tag'], 'noindex');
+    assert.match(missing.body, /Cette page a pris la fuite/);
+    assert.match(missing.body, /href="\/">Retour aux marchés/);
+    assert.doesNotMatch(missing.body, /alert\(1\)|<script\b|style=/);
+  }
+  const missingApi = await unixRequest(socketPath, { path: '/api/unknown' });
+  assert.equal(missingApi.status, 404);
+  assert.deepEqual(missingApi.body, { error: 'not_found' });
+  const missingHead = await unixRequest(socketPath, {
+    path: '/404',
+    method: 'HEAD',
+  });
+  assert.equal(missingHead.status, 404);
+  assert.equal(missingHead.body, null);
   const all = await unixRequest(socketPath, {
     headers: proxyHeaders,
     path: '/api/markets',

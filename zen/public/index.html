@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#122b64" />
-    <title>PwnyMarket · Liberté. Égalité. Données éparpillées.</title>
+    <title>PwnyMarket.fr · Liberté. Égalité. Données éparpillées.</title>
     <meta
       name="description"
       content="La Bourse du seum administratif. Des marchés absurdes, de vrais votes, zéro euro. Parodie indépendante, sans compte ni argent."
@@ -13,7 +13,7 @@
     <meta property="og:type" content="website" />
     <meta
       property="og:title"
-      content="PwnyMarket · Liberté. Égalité. Données éparpillées."
+      content="PwnyMarket.fr · Liberté. Égalité. Données éparpillées."
     />
     <meta
       property="og:description"
@@ -21,25 +21,42 @@
     />
     <meta
       property="og:image"
-      content="https://pwnymarket.fr/assets/v2/og.png"
+      content="https://pwnymarket.fr/assets/v3/og.png"
     />
-    <meta property="og:image:width" content="1729" />
+    <meta property="og:image:width" content="1728" />
     <meta property="og:image:height" content="910" />
     <meta
       property="og:image:alt"
-      content="PwnyMarket, Marianne au nez rouge et le slogan Liberté. Égalité. Données éparpillées."
+      content="PwnyMarket.fr, Marianne au nez rouge et le slogan Liberté. Égalité. Données éparpillées."
     />
     <meta property="og:url" content="https://pwnymarket.fr/" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@bluetouff" />
+    <meta
+      name="twitter:title"
+      content="PwnyMarket.fr · Liberté. Égalité. Données éparpillées."
+    />
+    <meta
+      name="twitter:description"
+      content="La Bourse du seum administratif. Des marchés absurdes, de vrais votes, zéro euro."
+    />
+    <meta
+      name="twitter:image"
+      content="https://pwnymarket.fr/assets/v3/og.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="PwnyMarket.fr, Marianne au nez rouge et le slogan Liberté. Égalité. Données éparpillées."
+    />
     <link rel="canonical" href="https://pwnymarket.fr/" />
     <link rel="icon" href="/marianne.png" type="image/png" />
-    <link rel="stylesheet" href="/assets/v2/styles.css" />
+    <link rel="stylesheet" href="/assets/v3/styles.css" />
     <script type="module" src="/assets/v2/app.js"></script>
   </head>
   <body>
     <a class="skip" href="#markets">Aller aux marchés</a>
     <header class="topbar">
-      <a class="brand" href="/" aria-label="PwnyMarket, accueil"
+      <a class="brand" href="/" aria-label="PwnyMarket.fr, accueil"
         ><img
           class="logo"
           src="/marianne.png"
@@ -47,12 +64,13 @@
           height="52"
           alt=""
         /><strong
-          >Pwny<span>Market</span
+          >Pwny<span>Market</span><span class="brand-domain">.fr</span
           ><small>LA BOURSE DU SEUM ADMINISTRATIF</small></strong
         ></a
       >
       <nav aria-label="Navigation principale">
         <a class="active" href="#markets">Les marchés</a
+        ><a href="/archives">Marchés achevés</a
         ><a href="/about">Le grand n’importe quoi</a>
       </nav>
       <span class="zero"><span aria-hidden="true">◉</span> 0 € réel</span>
@@ -64,7 +82,8 @@
       >
     </header>
     <div class="ticker" aria-label="Indices fictifs">
-      <strong>LE CAC 40 4</strong><span>CERFA <b>+49,3 %</b></span
+      <a class="ticker-index" href="/404">CAC 404</a
+      ><span>CERFA <b>+49,3 %</b></span
       ><span>CONFIANCE <b class="red">−404 %</b></span
       ><span>MAINTENANCE <b>∞</b></span
       ><span>PNY <b>0 €</b></span
@@ -120,8 +139,8 @@
             parlant d’une fuite de données ?
           </h2>
           <p class="muted">
-            Votre avis, pas un audit. Aucune information privilégiée, même chez
-            l’oracle.
+            Opinion hautement spéculative. Aucune information privilégiée, même
+            chez l’oracle.
           </p>
           <div class="chart">
             <div class="chart-head">
@@ -259,14 +278,22 @@
     </main>
     <footer class="site-footer">
       <div>
-        <strong>PwnyMarket<span>® non déposé, juste dépité.</span></strong>
+        <strong
+          >PwnyMarket<span class="brand-domain">.fr</span
+          ><span>® non déposé, juste dépité.</span></strong
+        >
         <p>
           Parodie indépendante. Ni Polymarket, ni l’État, ni un conseil en
           cybersécurité.
         </p>
+        <p>
+          powered by <a href="https://x.com/bluetouff">@bluetouff</a> -
+          <a href="https://l0g.fr/">l0g.fr</a>
+        </p>
       </div>
       <nav aria-label="Informations">
-        <a href="/about">À propos</a><a href="/privacy">Confidentialité</a
+        <a href="/archives">Marchés achevés</a><a href="/about">À propos</a
+        ><a href="/privacy">Confidentialité</a
         ><a href="https://github.com/bluetouff/pwnymarket">Code source · MIT</a>
       </nav>
     </footer>

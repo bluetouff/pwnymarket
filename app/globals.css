@@ -1,0 +1,154 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-fake: var(--fake);
+  --color-fake-foreground: var(--fake-foreground);
+  --color-yes: var(--yes);
+  --color-no: var(--no);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.35);
+  --radius-2xl: calc(var(--radius) * 1.75);
+}
+
+:root {
+  --background: #f8f9fb;
+  --foreground: #172033;
+  --card: #ffffff;
+  --card-foreground: #172033;
+  --popover: #ffffff;
+  --popover-foreground: #172033;
+  --primary: #246bfd;
+  --primary-foreground: #ffffff;
+  --secondary: #eef2f7;
+  --secondary-foreground: #243047;
+  --muted: #f1f4f8;
+  --muted-foreground: #68738a;
+  --accent: #edf4ff;
+  --accent-foreground: #1457df;
+  --destructive: #d9475c;
+  --border: #dfe4ec;
+  --input: #dfe4ec;
+  --ring: #7aa2ff;
+  --fake: #eaf0ff;
+  --fake-foreground: #1c56d8;
+  --yes: #16a873;
+  --no: #e05265;
+  --radius: 0.75rem;
+}
+
+* {
+  @apply border-border outline-ring/50;
+}
+html {
+  @apply scroll-smooth font-sans;
+}
+body {
+  @apply bg-background text-foreground antialiased;
+}
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-link {
+  @apply rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground;
+}
+
+.nav-link-active {
+  @apply bg-muted text-foreground;
+}
+
+.featured-grid {
+  @apply grid overflow-hidden rounded-2xl border bg-card shadow-[0_14px_42px_rgb(35_53_82/7%)];
+  grid-template-columns: minmax(0, 1fr) 340px;
+}
+
+.bg-grid {
+  background-color: #fbfcfe;
+  background-image:
+    linear-gradient(#e9edf3 1px, transparent 1px),
+    linear-gradient(90deg, #e9edf3 1px, transparent 1px);
+  background-size: 44px 36px;
+}
+
+.quote-button {
+  @apply flex min-h-20 flex-col items-start justify-between rounded-xl border-2 bg-white p-3.5 text-left transition-all focus-visible:ring-4;
+}
+
+.quote-button span {
+  @apply text-xs font-black tracking-[0.08em];
+}
+.quote-button strong {
+  @apply text-2xl font-black tracking-[-0.04em];
+}
+.quote-button:disabled {
+  @apply cursor-not-allowed opacity-60;
+}
+.quote-yes {
+  @apply border-emerald-200 text-emerald-700 hover:border-emerald-400 hover:bg-emerald-50 focus-visible:ring-emerald-200;
+}
+.quote-no {
+  @apply border-rose-200 text-rose-700 hover:border-rose-400 hover:bg-rose-50 focus-visible:ring-rose-200;
+}
+.quote-yes.quote-selected {
+  @apply border-emerald-600 bg-emerald-50 shadow-[0_0_0_3px_rgb(16_185_129/14%)];
+}
+.quote-no.quote-selected {
+  @apply border-rose-600 bg-rose-50 shadow-[0_0_0_3px_rgb(225_29_72/12%)];
+}
+
+.market-card {
+  @apply rounded-2xl border bg-card p-5 shadow-[0_8px_28px_rgb(35_53_82/5%)] transition-transform hover:-translate-y-0.5;
+}
+
+.mini-quote {
+  @apply flex-1 rounded-lg px-3 py-2 text-center text-xs font-extrabold;
+}
+.mini-yes {
+  @apply bg-emerald-50 text-emerald-700;
+}
+.mini-no {
+  @apply bg-rose-50 text-rose-700;
+}
+
+@media (max-width: 1023px) {
+  .featured-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

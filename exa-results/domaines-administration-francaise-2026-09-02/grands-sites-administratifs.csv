@@ -1,0 +1,73 @@
+name,domain,category,verification,selection_basis
+Service Public,service-public.gouv.fr,portail_usagers,official_site_2026-09-02,portail national de droits et démarches
+Annuaire de l’administration,lannuaire.service-public.gouv.fr,portail_usagers,official_site_2026-09-02,annuaire national des services publics
+Impôts,impots.gouv.fr,fiscalite,dila_2026-09-02,démarche nationale à large public
+Assurance Maladie,ameli.fr,social_sante,dila_2026-09-02,démarche nationale à large public
+Allocations familiales,caf.fr,social_sante,dila_2026-09-02,démarche nationale à large public
+France Travail,francetravail.fr,emploi,dila_2026-09-02,démarche nationale à large public
+Urssaf,urssaf.fr,emploi_cotisations,official_site_2026-09-02,démarche nationale à large public
+Assurance retraite,lassuranceretraite.fr,retraite,dila_2026-09-02,démarche nationale à large public
+Info Retraite,info-retraite.fr,retraite,official_site_2026-09-02,compte inter-régimes national
+Mutualité sociale agricole,msa.fr,social_sante,dila_2026-09-02,grand régime social
+Mes droits sociaux,mesdroitssociaux.gouv.fr,social_sante,service_public_2026,simulateur national de droits
+Mon Compte Formation,moncompteformation.gouv.fr,formation,service_public_2026,compte national de formation
+France Titres - ANTS,ants.gouv.fr,identite_titres,dila_2026-09-02,titres et démarches nationales
+France Identité,france-identite.gouv.fr,identite_titres,official_site_2026-09-02,identité numérique nationale
+FranceConnect,franceconnect.gouv.fr,identite_titres,official_site_2026-09-02,fédération d’identité nationale
+ProConnect,proconnect.gouv.fr,identite_titres,official_site_2026-09-02,accès professionnel national
+Démarche Numérique,demarche.numerique.gouv.fr,demarches,service_public_2026,plateforme interministérielle
+DossierFacile,dossierfacile.logement.gouv.fr,logement,official_site_2026-09-02,service numérique national
+Service Civique,service-civique.gouv.fr,engagement,dila_2026-09-02,service national
+JeVeuxAider,jeveuxaider.gouv.fr,engagement,official_site_2026-09-02,plateforme publique nationale
+1 jeune 1 solution,1jeune1solution.gouv.fr,emploi_jeunesse,official_site_2026-09-02,plateforme publique nationale
+Parcoursup,parcoursup.gouv.fr,education,official_site_2026-09-02,démarche nationale à large public
+Mon Master,monmaster.gouv.fr,education,official_site_2026-09-02,démarche nationale à large public
+Étudiant.gouv,etudiant.gouv.fr,education,dila_2026-09-02,portail national étudiant
+Éducation nationale,education.gouv.fr,ministere,dila_2026-09-02,grand ministère
+France-Visas,france-visas.gouv.fr,etrangers,official_site_2026-09-02,démarche internationale de l’État
+Administration numérique des étrangers en France,administration-etrangers-en-france.interieur.gouv.fr,etrangers,official_site_2026-09-02,démarche nationale sensible
+Casier judiciaire national,casier-judiciaire.justice.gouv.fr,justice,dila_2026-09-02,démarche nationale
+Justice.fr,justice.fr,justice,official_site_2026-09-02,portail public de la justice
+Légifrance,legifrance.gouv.fr,droit,official_site_2026-09-02,service public de diffusion du droit
+Data.gouv.fr,data.gouv.fr,donnees_publiques,dila_2026-09-02,plateforme nationale
+Annuaire des Entreprises,annuaire-entreprises.data.gouv.fr,entreprises,official_site_2026-09-02,service national officiel
+Formalités d’entreprises,formalites.entreprises.gouv.fr,entreprises,official_site_2026-09-02,guichet national
+Entreprendre Service Public,entreprendre.service-public.gouv.fr,entreprises,official_site_2026-09-02,portail national des entreprises
+INPI,inpi.fr,entreprises,dila_2026-09-02,opérateur national
+Insee,insee.fr,statistiques,dila_2026-09-02,institut national
+Banque de France,banque-france.fr,economie,dila_2026-09-02,institution nationale
+Ministère de l’Économie,economie.gouv.fr,ministere,dila_2026-09-02,grand ministère
+Douane,douane.gouv.fr,fiscalite,dila_2026-09-02,administration nationale
+Ministère de l’Europe et des Affaires étrangères,diplomatie.gouv.fr,ministere,dila_2026-09-02,grand ministère
+Ministère de l’Intérieur,interieur.gouv.fr,ministere,dila_2026-09-02,grand ministère
+Police nationale,police-nationale.interieur.gouv.fr,securite,dila_2026-09-02,service national
+Gendarmerie nationale,gendarmerie.interieur.gouv.fr,securite,dila_2026-09-02,service national
+Ministère des Armées,defense.gouv.fr,ministere,dila_2026-09-02,grand ministère
+Ministère de la Santé,sante.gouv.fr,ministere,dila_2026-09-02,grand ministère
+Ministère des Solidarités,solidarites.gouv.fr,ministere,dila_2026-09-02,grand ministère
+Ministère du Travail,travail-emploi.gouv.fr,ministere,dila_2026-09-02,grand ministère
+Ministère de la Transition écologique,ecologie.gouv.fr,ministere,dila_2026-09-02,grand ministère
+Ministère de l’Agriculture,agriculture.gouv.fr,ministere,dila_2026-09-02,grand ministère
+Ministère de la Culture,culture.gouv.fr,ministere,dila_2026-09-02,grand ministère
+Enseignement supérieur et Recherche,enseignementsup-recherche.gouv.fr,ministere,dila_2026-09-02,grand ministère
+Info.gouv.fr,info.gouv.fr,institution,dila_2026-09-02,portail gouvernemental
+Présidence de la République,elysee.fr,institution,dila_2026-09-02,institution constitutionnelle
+Assemblée nationale,assemblee-nationale.fr,institution,dila_2026-09-02,institution constitutionnelle
+Sénat,senat.fr,institution,dila_2026-09-02,institution constitutionnelle
+Conseil constitutionnel,conseil-constitutionnel.fr,institution,dila_2026-09-02,institution constitutionnelle
+Conseil d’État,conseil-etat.fr,institution,dila_2026-09-02,juridiction nationale
+Cour des comptes,ccomptes.fr,institution,dila_2026-09-02,juridiction financière nationale
+Défenseur des droits,defenseurdesdroits.fr,autorite_independante,dila_2026-09-02,autorité nationale
+CNIL,cnil.fr,autorite_independante,dila_2026-09-02,autorité nationale
+Arcom,arcom.fr,autorite_independante,dila_2026-09-02,autorité nationale
+Arcep,arcep.fr,autorite_independante,dila_2026-09-02,autorité nationale
+Autorité des marchés financiers,amf-france.org,autorite_independante,dila_2026-09-02,autorité nationale
+Autorité de la concurrence,autoritedelaconcurrence.fr,autorite_independante,dila_2026-09-02,autorité nationale
+Géoportail,geoportail.gouv.fr,cartographie,dila_2026-09-02,service national
+Cadastre,cadastre.gouv.fr,foncier,official_site_2026-09-02,service national
+Agence nationale de sécurité du médicament,ansm.sante.fr,social_sante,dila_2026-09-02,agence nationale
+Anses,anses.fr,social_sante,dila_2026-09-02,agence nationale
+Autorité de sûreté nucléaire et de radioprotection,asnr.fr,autorite_independante,dila_2026-09-02,autorité nationale
+France Rénov’,france-renov.gouv.fr,logement,service_public_2026,service public national
+Agence nationale de l’habitat,anah.gouv.fr,logement,dila_2026-09-02,agence nationale
+MaPrimeRénov’,maprimerenov.gouv.fr,logement,service_public_2026,démarche nationale à large public

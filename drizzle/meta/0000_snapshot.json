@@ -1,0 +1,84 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "49b9b999-0ebb-4364-9bbf-704a842cfa4a",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "votes": {
+      "name": "votes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "market_id": {
+          "name": "market_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "voter_key": {
+          "name": "voter_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "choice": {
+          "name": "choice",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "idx_votes_market_voter": {
+          "name": "idx_votes_market_voter",
+          "columns": [
+            "market_id",
+            "voter_key"
+          ],
+          "isUnique": true
+        },
+        "idx_votes_market_id": {
+          "name": "idx_votes_market_id",
+          "columns": [
+            "market_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "votes_choice_check": {
+          "name": "votes_choice_check",
+          "value": "\"votes\".\"choice\" in ('yes', 'no')"
+        }
+      }
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

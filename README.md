@@ -61,6 +61,8 @@ npm run build
 npm audit
 ```
 
+Après activation sur Zen, `npm run test:live:headers` vérifie en lecture seule les en-têtes réellement servis sur `pwnymarket.fr`, pour l’accueil, la santé et une réponse 404. Les valeurs manquantes ou dupliquées font échouer ce contrôle.
+
 ## Limites du vote par IP
 
 Cette protection légère réduit les doubles votes ordinaires, mais ne constitue pas une identité forte : plusieurs personnes derrière un même NAT partagent potentiellement un vote, tandis qu’un changement d’IP ou un VPN peut permettre un autre vote. Cette concession évite comptes, cookies persistants et collecte de données personnelles supplémentaires.

@@ -12,7 +12,8 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "test:security": "node --experimental-strip-types --test tests/*.test.ts",
-    "test:zen": "node --test tests/zen-runtime.test.mjs"
+    "test:zen": "node --test tests/zen-runtime.test.mjs",
+    "test:live:headers": "node deploy/zen/check-public-headers.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",

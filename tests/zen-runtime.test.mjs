@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 import { isSupportedProductionRuntime } from '../deploy/zen/check-runtime.mjs';
+import { assertPublicSecurityHeaders } from '../deploy/zen/check-public-headers.mjs';
 import {
   ACTIVE_MARKET_ID,
   createVoterKey,
@@ -237,6 +238,39 @@ void test('strict CSP contains no inline-script escape hatch', () => {
   );
   assert.equal(/<script(?![^>]*\ssrc=)/i.test(html), false);
   assert.equal(/\sstyle=/i.test(html), false);
+});
+
+void test('Apache removes upstream security headers before assigning one public value', () => {
+  const apache = readFileSync(
+    new URL('../deploy/zen/pwnymarket.apache.conf', import.meta.url),
+    'utf8',
+  );
+  const lines = apache.split('\n').map((line) => line.trim());
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    const unset = `Header onsuccess unset ${name}`;
+    const set = `Header always set ${name} "${value}"`;
+    assert.equal(lines.filter((line) => line === unset).length, 1, name);
+    assert.equal(lines.filter((line) => line === set).length, 1, name);
+    assert.ok(lines.indexOf(unset) < lines.indexOf(set), name);
+  }
+});
+
+void test('public header verifier rejects duplicates and missing policies', () => {
+  assert.doesNotThrow(() =>
+    assertPublicSecurityHeaders(new Headers(SECURITY_HEADERS)),
+  );
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    const duplicate = new Headers(SECURITY_HEADERS);
+    duplicate.append(name, value);
+    assert.throws(() => assertPublicSecurityHeaders(duplicate), {
+      name: 'AssertionError',
+    });
+    const missing = new Headers(SECURITY_HEADERS);
+    missing.delete(name);
+    assert.throws(() => assertPublicSecurityHeaders(missing), {
+      name: 'AssertionError',
+    });
+  }
 });
 
 void test('production origin is aligned across runtime, Apache, TLS and metadata', () => {

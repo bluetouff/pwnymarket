@@ -13,6 +13,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 
+import { isSupportedProductionRuntime } from '../deploy/zen/check-runtime.mjs';
 import {
   ACTIVE_MARKET_ID,
   createVoterKey,
@@ -23,6 +24,23 @@ import {
 import { VoteStore } from '../zen/store.mjs';
 
 const secret = '0123456789abcdef0123456789abcdef';
+
+void test('production rejects EOL, unpatched, prerelease and unreviewed Node lines', () => {
+  for (const version of [
+    '20.19.2',
+    '22.23.1',
+    '24.18.0',
+    '24.20.0-rc.1',
+    '25.0.0',
+    '26.8.1',
+    'invalid',
+  ]) {
+    assert.equal(isSupportedProductionRuntime(version), false, version);
+  }
+  for (const version of ['22.23.2', '22.24.0', '24.20.0', '24.20.1']) {
+    assert.equal(isSupportedProductionRuntime(version), true, version);
+  }
+});
 
 function unixRequest(
   socketPath,

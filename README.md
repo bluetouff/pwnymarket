@@ -45,7 +45,7 @@ La migration D1 se trouve dans `drizzle/0000_right_bug.sql`. Les fichiers `.env*
 
 ## Runtime Zen
 
-Le dossier `zen/` contient une variante sans dépendance npm pour Debian/Node 20. Elle sert l’interface et l’API à travers un socket Unix, avec un registre append-only en `0600`. Apache supprime les en-têtes d’IP fournis par le client avant d’ajouter l’adresse réseau observée ; Node la transforme immédiatement par HMAC et ne la journalise pas.
+Le dossier `zen/` contient une variante sans dépendance npm pour Debian. La production requiert une branche LTS corrigée : Node 22.23.2+ ou 24.20.0+ (minimum revu le 2 septembre 2026). L’installateur et systemd refusent les versions antérieures et les autres branches, sans mettre à niveau le runtime partagé. Elle sert l’interface et l’API à travers un socket Unix, avec un registre append-only en `0600`. Apache supprime les en-têtes d’IP fournis par le client avant d’ajouter l’adresse réseau observée ; Node la transforme immédiatement par HMAC et ne la journalise pas.
 
 Les fichiers `deploy/zen/` préparent une release immuable sous `/var/www/html/pwnymarket`, un service systemd cloisonné et un vhost HTTPS. Un refus d’accès Apache global protège le répertoire avant toute copie : seuls les fichiers publics explicitement autorisés par le runtime sont servis par le proxy. L’activation publique refuse de continuer sans DNS résolu, certificat valide pour `pwnymarket.l0g.fr`, service sain et configuration Apache valide. La CSP n’autorise ni script inline, ni évaluation dynamique, ni ressource tierce.
 

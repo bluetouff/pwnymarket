@@ -16,7 +16,7 @@ if [[ ! ${source_sha} =~ ^[a-f0-9]{40}$ ]]; then
   echo "Invalid source SHA." >&2
   exit 2
 fi
-if [[ ! -f ${release_dir}/zen/server.mjs || ! -f ${release_dir}/deploy/zen/pwnymarket.service || ! -f ${release_dir}/deploy/zen/pwnymarket-private-files.conf ]]; then
+if [[ ! -f ${release_dir}/zen/server.mjs || ! -f ${release_dir}/deploy/zen/pwnymarket.service || ! -f ${release_dir}/deploy/zen/pwnymarket-private-files.conf || ! -f ${release_dir}/deploy/zen/check-runtime.mjs ]]; then
   echo "Incomplete release." >&2
   exit 2
 fi
@@ -24,6 +24,9 @@ if find "${release_dir}" -type l -print -quit | grep -q .; then
   echo "Release symlinks are not allowed." >&2
   exit 2
 fi
+
+# Abort before any Apache, systemd, account or filesystem mutation on old Node.
+/usr/bin/node "${release_dir}/deploy/zen/check-runtime.mjs"
 
 target=/var/www/html/pwnymarket/releases/${source_sha}
 candidate=${target}.candidate

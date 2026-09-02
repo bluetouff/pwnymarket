@@ -101,7 +101,7 @@ void test('separates the voter pseudonym from the raw address', () => {
 });
 
 void test('requires HTTPS and an exact same origin for writes', () => {
-  const origin = 'https://pwnymarket.l0g.fr';
+  const origin = 'https://pwnymarket.fr';
   assert.equal(
     isSameOriginVoteRequest({ origin, 'x-forwarded-proto': 'https' }, origin),
     true,
@@ -239,6 +239,29 @@ void test('strict CSP contains no inline-script escape hatch', () => {
   assert.equal(/\sstyle=/i.test(html), false);
 });
 
+void test('production origin is aligned across runtime, Apache, TLS and metadata', () => {
+  for (const path of [
+    '../zen/server.mjs',
+    '../deploy/zen/pwnymarket.service',
+    '../deploy/zen/pwnymarket.apache.conf',
+    '../deploy/zen/activate-public.sh',
+    '../zen/public/index.html',
+  ]) {
+    const source = readFileSync(new URL(path, import.meta.url), 'utf8');
+    assert.ok(source.includes('https://pwnymarket.fr'), path);
+    assert.equal(source.includes('pwnymarket.l0g.fr'), false, path);
+  }
+  const html = readFileSync(
+    new URL('../zen/public/index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(html, /rel="canonical" href="https:\/\/pwnymarket\.fr\/"/);
+  assert.match(
+    html,
+    /property="og:image" content="https:\/\/pwnymarket\.fr\/og\.png"/,
+  );
+});
+
 void test('Unix-socket API accepts one vote and rejects a duplicate', async (context) => {
   const directory = mkdtempSync(join(tmpdir(), 'pwnymarket-server-'));
   const socketPath = join(directory, 'server.sock');
@@ -248,7 +271,7 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
     env: {
       ...process.env,
       PWNYMARKET_LEDGER: ledger,
-      PWNYMARKET_PUBLIC_ORIGIN: 'https://pwnymarket.l0g.fr',
+      PWNYMARKET_PUBLIC_ORIGIN: 'https://pwnymarket.fr',
       PWNYMARKET_SOCKET: socketPath,
       VOTE_HASH_SECRET: secret,
     },
@@ -276,9 +299,18 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
     ...proxyHeaders,
     'content-length': Buffer.byteLength(voteBody),
     'content-type': 'application/json',
-    origin: 'https://pwnymarket.l0g.fr',
+    origin: 'https://pwnymarket.fr',
     'sec-fetch-site': 'same-origin',
   };
+  const staleOrigin = await unixRequest(socketPath, {
+    body: voteBody,
+    headers: { ...writeHeaders, origin: 'https://pwnymarket.l0g.fr' },
+    method: 'POST',
+    path: '/api/votes',
+  });
+  assert.equal(staleOrigin.status, 403);
+  assert.equal(readFileSync(ledger, 'utf8'), '');
+
   const badMediaType = await unixRequest(socketPath, {
     body: voteBody,
     headers: { ...writeHeaders, 'content-type': 'application/json-malicious' },

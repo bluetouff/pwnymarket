@@ -8,7 +8,7 @@ User=pwnymarket
 Group=www-data
 WorkingDirectory=/var/www/html/pwnymarket/current/zen
 Environment=NODE_ENV=production
-Environment=PWNYMARKET_PUBLIC_ORIGIN=https://pwnymarket.l0g.fr
+Environment=PWNYMARKET_PUBLIC_ORIGIN=https://pwnymarket.fr
 Environment=PWNYMARKET_SOCKET=/run/pwnymarket/pwnymarket.sock
 Environment=PWNYMARKET_LEDGER=/var/lib/pwnymarket/votes.ndjson
 EnvironmentFile=/etc/pwnymarket.env

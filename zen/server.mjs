@@ -19,7 +19,7 @@ const socketPath =
 const ledgerPath =
   process.env.PWNYMARKET_LEDGER || '/var/lib/pwnymarket/votes.ndjson';
 const publicOrigin =
-  process.env.PWNYMARKET_PUBLIC_ORIGIN || 'https://pwnymarket.l0g.fr';
+  process.env.PWNYMARKET_PUBLIC_ORIGIN || 'https://pwnymarket.fr';
 const secret = process.env.VOTE_HASH_SECRET;
 
 if (!secret || secret.length < 32)

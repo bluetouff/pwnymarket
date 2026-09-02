@@ -17,6 +17,7 @@ import { isSupportedProductionRuntime } from '../deploy/zen/check-runtime.mjs';
 import { assertPublicSecurityHeaders } from '../deploy/zen/check-public-headers.mjs';
 import {
   ACTIVE_MARKET_ID,
+  MARKET_IDS,
   createVoterKey,
   isSameOriginVoteRequest,
   normalizeProxyIp,
@@ -63,7 +64,11 @@ function unixRequest(
         response.on('end', () => {
           const text = Buffer.concat(chunks).toString('utf8');
           resolve({
-            body: text ? JSON.parse(text) : null,
+            body: text
+              ? response.headers['content-type']?.includes('application/json')
+                ? JSON.parse(text)
+                : text
+              : null,
             headers: response.headers,
             status: response.statusCode,
           });
@@ -149,6 +154,57 @@ void test('ledger fails closed on a truncated record', () => {
   const ledger = join(directory, 'votes.ndjson');
   writeFileSync(ledger, '{"partial":true}');
   assert.throws(() => new VoteStore(ledger), /truncated/);
+});
+
+void test('all markets have independent durable votes and different HMAC identities', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'pwnymarket-multi-'));
+  const ledger = join(directory, 'votes.ndjson');
+  const store = new VoteStore(ledger);
+  const keys = new Set();
+  assert.equal(MARKET_IDS.size, 12);
+  for (const id of MARKET_IDS) {
+    const key = createVoterKey(secret, '192.0.2.50', id);
+    keys.add(key);
+    assert.equal(store.summary(id, key).total, 0);
+    assert.equal(store.record(id, key, 'yes'), true);
+    assert.equal(store.record(id, key, 'no'), false);
+    assert.equal(store.summary(id, key).total, 1);
+  }
+  assert.equal(keys.size, MARKET_IDS.size);
+  assert.throws(() => createVoterKey(secret, '192.0.2.50', '__proto__'));
+  assert.throws(() => store.record('unknown', [...keys][0], 'yes'));
+  store.close();
+  const reopened = new VoteStore(ledger);
+  for (const id of MARKET_IDS) {
+    assert.equal(
+      reopened.summary(id, createVoterKey(secret, '192.0.2.50', id)).choice,
+      'yes',
+    );
+    assert.equal(reopened.summary(id, '').total, 1);
+  }
+  reopened.close();
+});
+
+void test('home links to dedicated privacy, uses local lighter type and has no privacy card', () => {
+  const html = readFileSync(
+    new URL('../zen/public/index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(html, /href="\/privacy"/);
+  assert.match(html, /src="\/marianne.png"/);
+  assert.doesNotMatch(
+    html,
+    /Une empreinte|CONFIDENTIALITÉ|<span class="logo">P/,
+  );
+  const css = readFileSync(
+    new URL('../zen/public/styles.css', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    css,
+    /\.intro h1 \{[^}]*font-family: 'Manrope'[^}]*font-weight: 500;/s,
+  );
+  assert.doesNotMatch(css, /url\(['"]?https?:/);
 });
 
 void test('ledger refuses an append beyond capacity without changing the file', () => {
@@ -292,7 +348,7 @@ void test('production origin is aligned across runtime, Apache, TLS and metadata
   assert.match(html, /rel="canonical" href="https:\/\/pwnymarket\.fr\/"/);
   assert.match(
     html,
-    /property="og:image" content="https:\/\/pwnymarket\.fr\/og\.png"/,
+    /property="og:image"[\s\S]*?content="https:\/\/pwnymarket\.fr\/assets\/v2\/og\.png"/,
   );
 });
 
@@ -324,6 +380,50 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
   });
   assert.equal(initial.status, 200);
   assert.equal(initial.body.total, 0);
+
+  for (const path of [
+    '/about',
+    '/privacy',
+    '/assets/v2/app.js',
+    '/assets/v2/markets.js',
+    '/assets/v2/styles.css',
+    '/assets/v2/og.png',
+    '/markets.js',
+    '/manrope-medium.ttf',
+    '/marianne.png',
+  ]) {
+    const asset = await unixRequest(socketPath, { path });
+    assert.equal(asset.status, 200, path);
+    assert.equal(
+      asset.headers['content-security-policy'],
+      SECURITY_HEADERS['Content-Security-Policy'],
+    );
+  }
+  const all = await unixRequest(socketPath, {
+    headers: proxyHeaders,
+    path: '/api/markets',
+  });
+  assert.equal(all.status, 200);
+  assert.deepEqual(
+    Object.keys(all.body.markets).sort(),
+    [...MARKET_IDS].sort(),
+  );
+  assert.equal(all.headers['cache-control'], 'no-store, max-age=0');
+  assert.equal(all.headers['set-cookie'], undefined);
+  assert.equal(JSON.stringify(all.body).includes('voterKey'), false);
+  assert.equal(
+    (await unixRequest(socketPath, { path: '/api/markets' })).status,
+    503,
+  );
+  assert.equal(
+    (
+      await unixRequest(socketPath, {
+        headers: proxyHeaders,
+        path: '/api/votes?market=unknown',
+      })
+    ).status,
+    400,
+  );
 
   const voteBody = JSON.stringify({
     choice: 'yes',
@@ -389,5 +489,29 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
   });
   assert.equal(duplicate.status, 409);
   assert.equal(duplicate.body.choice, 'yes');
+  const otherId = [...MARKET_IDS].find((id) => id !== ACTIVE_MARKET_ID);
+  const otherBody = JSON.stringify({ marketId: otherId, choice: 'no' });
+  const other = await unixRequest(socketPath, {
+    body: otherBody,
+    headers: {
+      ...writeHeaders,
+      'content-length': Buffer.byteLength(otherBody),
+    },
+    method: 'POST',
+    path: '/api/votes',
+  });
+  assert.equal(other.status, 201);
+  assert.equal(other.body.total, 1);
+  assert.equal(other.body.no, 1);
+  const allAfter = await unixRequest(socketPath, {
+    headers: proxyHeaders,
+    path: '/api/markets',
+  });
+  assert.equal(allAfter.body.markets[ACTIVE_MARKET_ID].choice, 'yes');
+  assert.equal(allAfter.body.markets[otherId].choice, 'no');
+  for (const id of MARKET_IDS) {
+    if (![ACTIVE_MARKET_ID, otherId].includes(id))
+      assert.equal(allAfter.body.markets[id].total, 0);
+  }
   assert.equal(readFileSync(ledger, 'utf8').includes('198.51.100.8'), false);
 });

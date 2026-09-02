@@ -11,7 +11,7 @@ import {
 } from 'node:fs';
 import { dirname } from 'node:path';
 
-import { ACTIVE_MARKET_ID, VOTE_CHOICES } from './security.mjs';
+import { MARKET_IDS, VOTE_CHOICES } from './security.mjs';
 
 const MAX_LEDGER_BYTES = 64 * 1024 * 1024;
 const VOTER_KEY_PATTERN = /^[a-f0-9]{64}$/;
@@ -22,8 +22,7 @@ function assertRecord(record) {
   const keys = Object.keys(record).sort();
   if (keys.join(',') !== 'choice,createdAt,marketId,voterKey')
     throw new Error('Invalid vote ledger');
-  if (record.marketId !== ACTIVE_MARKET_ID)
-    throw new Error('Invalid vote ledger');
+  if (!MARKET_IDS.has(record.marketId)) throw new Error('Invalid vote ledger');
   if (!VOTE_CHOICES.has(record.choice)) throw new Error('Invalid vote ledger');
   if (!VOTER_KEY_PATTERN.test(record.voterKey))
     throw new Error('Invalid vote ledger');
@@ -43,7 +42,7 @@ export class VoteStore {
     mkdirSync(dirname(filePath), { mode: 0o700, recursive: true });
     this.filePath = filePath;
     this.votes = new Map();
-    this.counts = { yes: 0, no: 0 };
+    this.counts = new Map([...MARKET_IDS].map((id) => [id, { yes: 0, no: 0 }]));
     this.maxBytes = maxBytes;
     this.byteLength = 0;
     this.failed = false;
@@ -63,7 +62,7 @@ export class VoteStore {
         if (this.votes.has(key))
           throw new Error('Duplicate vote ledger record');
         this.votes.set(key, record.choice);
-        this.counts[record.choice] += 1;
+        this.counts.get(record.marketId)[record.choice] += 1;
       }
     }
 
@@ -107,13 +106,13 @@ export class VoteStore {
     }
     this.byteLength += line.length;
     this.votes.set(key, choice);
-    this.counts[choice] += 1;
+    this.counts.get(marketId)[choice] += 1;
     return true;
   }
 
   summary(marketId, voterKey) {
-    if (marketId !== ACTIVE_MARKET_ID) throw new Error('Unknown market');
-    const { yes, no } = this.counts;
+    if (!MARKET_IDS.has(marketId)) throw new Error('Unknown market');
+    const { yes, no } = this.counts.get(marketId);
     const total = yes + no;
     const choice = this.votes.get(`${marketId}\0${voterKey}`) ?? null;
     const yesPercent = total === 0 ? 50 : Math.round((yes / total) * 100);

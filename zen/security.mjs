@@ -1,7 +1,9 @@
 import { createHmac } from 'node:crypto';
 import { isIP } from 'node:net';
+import { MARKETS } from './public/markets.js';
 
 export const ACTIVE_MARKET_ID = 'impots-next-official-notice';
+export const MARKET_IDS = new Set(MARKETS.map((market) => market.id));
 export const VOTE_CHOICES = new Set(['yes', 'no']);
 
 export const SECURITY_HEADERS = Object.freeze({
@@ -43,7 +45,7 @@ export function createVoterKey(secret, ip, marketId) {
   if (typeof secret !== 'string' || secret.length < 32) {
     throw new Error('Vote hashing is not configured');
   }
-  if (!normalizeProxyIp(ip) || marketId !== ACTIVE_MARKET_ID) {
+  if (!normalizeProxyIp(ip) || !MARKET_IDS.has(marketId)) {
     throw new TypeError('Invalid voter identity');
   }
   return createHmac('sha256', secret)

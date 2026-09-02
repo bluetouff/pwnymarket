@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Confidentialité · PwnyMarket</title>
+    <meta
+      name="description"
+      content="Confidentialité : les règles et le fonctionnement de PwnyMarket, parodie sans argent ni compte."
+    />
+    <link rel="canonical" href="https://pwnymarket.fr/privacy" />
+    <link rel="icon" href="/marianne.png" type="image/png" />
+    <link rel="stylesheet" href="/assets/v2/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/"
+        ><img
+          class="logo"
+          src="/marianne.png"
+          width="52"
+          height="52"
+          alt=""
+        /><strong
+          >Pwny<span>Market</span
+          ><small>LA BOURSE DU SEUM ADMINISTRATIF</small></strong
+        ></a
+      ><span class="zero">0 € réel</span><a href="/">Retour aux marchés ↗</a>
+    </header>
+    <main class="prose">
+      <p class="eyebrow">Les seules petites lignes sérieuses</p>
+      <h1>Votre IP n’a pas sa carte de membre.</h1>
+      <p>
+        Aucun compte, cookie de suivi, stockage local dans le navigateur, pixel
+        publicitaire ou service de statistiques tiers n’est utilisé par
+        PwnyMarket.
+      </p>
+      <h2>Une voix par IP et par marché</h2>
+      <p>
+        L’adresse IP est nécessaire en mémoire pour recevoir votre connexion et
+        limiter les doublons. Avant d’enregistrer le vote, le serveur la
+        transforme en empreinte HMAC avec un secret serveur et l’identifiant du
+        marché. Le journal des votes conserve seulement cette empreinte, le
+        marché, le choix et sa date.
+      </p>
+      <p>
+        Le journal ne contient pas votre adresse brute. Une même IP produit des
+        empreintes différentes selon le marché : elles ne constituent pas un
+        identifiant transversal. Ces empreintes sont pseudonymisées, pas une
+        promesse d’anonymat absolu. Elles restent conservées tant que le marché
+        est ouvert pour empêcher les votes multiples.
+      </p>
+      <h2>GoAccess, sans vous compter deux fois comme une personne</h2>
+      <p>
+        Les statistiques techniques privées comptent les requêtes, les codes
+        HTTP et les octets transférés. Les journaux dédiés enregistrent l’heure
+        et une catégorie de route issue d’une liste fermée. Ils n’enregistrent
+        ni IP, ni paramètres d’URL, ni navigateur, ni référent, ni contenu de
+        vote. Les chemins inconnus sont regroupés, pas recopiés.
+      </p>
+      <p>
+        Le rapport GoAccess est réservé à l’administration du site, protégé par
+        mot de passe et actualisé toutes les quinze minutes. Il n’affiche pas de
+        visiteurs uniques, de pays ou de profils : les requêtes peuvent aussi
+        provenir de robots. Les journaux sont limités à quatorze jours et à une
+        taille bornée. Les erreurs techniques du serveur peuvent faire l’objet
+        de journaux distincts et minimaux.
+      </p>
+      <h2>Les limites, sans poudre aux yeux</h2>
+      <p>
+        La déduplication par IP n’identifie pas une personne : foyer, entreprise
+        ou réseau mobile peuvent partager une adresse. Un changement d’IP peut
+        permettre un autre vote. Le serveur ne tente pas de vous reconnaître
+        avec une empreinte du navigateur.
+      </p>
+      <p>
+        Le secret reste hors du dépôt public. Le code et la configuration sont
+        consultables sur
+        <a href="https://github.com/bluetouff/pwnymarket">GitHub</a>. Pour une
+        question sur le fonctionnement, ouvrez-y une issue sans publier d’IP, de
+        secret ou d’information personnelle.
+      </p>
+    </main>
+    <footer class="site-footer">
+      <strong>PwnyMarket</strong>
+      <nav aria-label="Informations">
+        <a href="/">Les marchés</a><a href="/about">À propos</a
+        ><a href="/privacy">Confidentialité</a>
+      </nav>
+    </footer>
+  </body>
+</html>

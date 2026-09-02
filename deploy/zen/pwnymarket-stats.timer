@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh PwnyMarket private statistics every fifteen minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=15min
+RandomizedDelaySec=30
+Persistent=true
+Unit=pwnymarket-stats.service
+
+[Install]
+WantedBy=timers.target

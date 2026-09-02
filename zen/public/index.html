@@ -4,192 +4,271 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
-    <meta name="theme-color" content="#f7f8fb" />
-    <title>PwnyMarket — le marché qui ne sait rien</title>
+    <meta name="theme-color" content="#122b64" />
+    <title>PwnyMarket · Liberté. Égalité. Données éparpillées.</title>
     <meta
       name="description"
-      content="Parodie de marché prédictif sans argent ni compte sur les annonces publiques de mésaventures numériques de l’administration."
+      content="La Bourse du seum administratif. Des marchés absurdes, de vrais votes, zéro euro. Parodie indépendante, sans compte ni argent."
     />
     <meta property="og:type" content="website" />
     <meta
       property="og:title"
-      content="PwnyMarket — le marché qui ne sait rien"
+      content="PwnyMarket · Liberté. Égalité. Données éparpillées."
     />
     <meta
       property="og:description"
-      content="Parodie intégrale. 0 € réel, aucun compte et beaucoup de mauvaise foi."
+      content="La Bourse du seum administratif. Des marchés absurdes, de vrais votes, zéro euro."
     />
-    <meta property="og:image" content="https://pwnymarket.fr/og.png" />
+    <meta
+      property="og:image"
+      content="https://pwnymarket.fr/assets/v2/og.png"
+    />
+    <meta property="og:image:width" content="1729" />
+    <meta property="og:image:height" content="910" />
+    <meta
+      property="og:image:alt"
+      content="PwnyMarket, Marianne au nez rouge et le slogan Liberté. Égalité. Données éparpillées."
+    />
     <meta property="og:url" content="https://pwnymarket.fr/" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="canonical" href="https://pwnymarket.fr/" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/styles.css" />
-    <script src="/app.js" defer></script>
+    <link rel="icon" href="/marianne.png" type="image/png" />
+    <link rel="stylesheet" href="/assets/v2/styles.css" />
+    <script type="module" src="/assets/v2/app.js"></script>
   </head>
   <body>
+    <a class="skip" href="#markets">Aller aux marchés</a>
     <header class="topbar">
-      <a class="brand" href="#top" aria-label="PwnyMarket — accueil"
-        ><span class="logo">P</span><strong>PwnyMarket</strong></a
+      <a class="brand" href="/" aria-label="PwnyMarket, accueil"
+        ><img
+          class="logo"
+          src="/marianne.png"
+          width="52"
+          height="52"
+          alt=""
+        /><strong
+          >Pwny<span>Market</span
+          ><small>LA BOURSE DU SEUM ADMINISTRATIF</small></strong
+        ></a
       >
       <nav aria-label="Navigation principale">
-        <a href="#markets">Marchés</a><a href="#method">Méthode douteuse</a>
+        <a class="active" href="#markets">Les marchés</a
+        ><a href="/about">Le grand n’importe quoi</a>
       </nav>
-      <span class="zero">◉ 0 € réel</span>
-      <a class="github" href="https://github.com/bluetouff/pwnymarket"
-        >&lt;/&gt; GitHub</a
+      <span class="zero"><span aria-hidden="true">◉</span> 0 € réel</span>
+      <a
+        class="github"
+        href="https://github.com/bluetouff/pwnymarket"
+        aria-label="Code source sur GitHub"
+        >&lt;/&gt;</a
       >
     </header>
-
-    <div class="warning">
-      <strong>🛡 PARODIE INTÉGRALE.</strong> Aucune cote n’est réelle, aucun
-      jeton n’a de valeur et rien ici n’évalue la sécurité d’un site.
+    <div class="ticker" aria-label="Indices fictifs">
+      <strong>LE CAC 40 4</strong><span>CERFA <b>+49,3 %</b></span
+      ><span>CONFIANCE <b class="red">−404 %</b></span
+      ><span>MAINTENANCE <b>∞</b></span
+      ><span>PNY <b>0 €</b></span
+      ><small>Indices 100 % inventés. Comme leur méthodologie.</small>
     </div>
-
     <main id="top">
       <section class="intro">
         <div>
-          <p class="eyebrow">🔥 Tendance totalement inventée</p>
-          <h1>
-            Le marché qui ne sait rien,
-            <span>mais l’affiche très précisément.</span>
-          </h1>
+          <p class="eyebrow">
+            <span class="live-dot"></span> République française du grand
+            n’importe quoi
+          </p>
+          <h1>Liberté. Égalité.<br /><span>Données éparpillées.</span></h1>
+          <p class="intro-copy">
+            Ils ont vos données. Vous avez des opinions.<br />Spéculez sur le
+            prochain épisode du feuilleton administratif.
+          </p>
+          <div class="hero-links">
+            <a class="primary-link" href="#markets"
+              >Investir ma mauvaise foi <span aria-hidden="true">↗</span></a
+            ><span
+              >Sans argent. Sans compte.<br />Avec un excellent sens du
+              déni.</span
+            >
+          </div>
         </div>
-        <p>
-          Des pronostics absurdes sur les mésaventures numériques de
-          l’administration. Pour rire, jamais pour nuire.
-        </p>
+        <aside
+          class="hero-seal"
+          aria-label="Parodie, aucune affiliation officielle"
+        >
+          <img
+            src="/marianne.png"
+            width="210"
+            height="210"
+            alt="Marianne coiffée du bonnet phrygien, avec un nez rouge de clown"
+          /><strong>RÉPUBLIQUE<br />DU LULZ</strong
+          ><span>Une et indivisiblement dans le déni.</span>
+        </aside>
       </section>
-
+      <div class="disclaimer">
+        <span class="parody-tag">100 % PARODIE</span> Cotes et volumes fictifs.
+        Votes réels. Aucune prédiction de piratage, aucun gain.
+        <a href="/about">Lire les petites lignes ↗</a>
+      </div>
       <section class="featured" aria-labelledby="market-title">
         <article class="market-main">
           <div class="meta">
-            <span>CYBER-LOTO</span> ◷ Résolution : quand l’oracle se réveille
+            <span class="category">À LA UNE · CYBER-LOTO</span
+            ><span>Le marché historique</span>
           </div>
           <h2 id="market-title">
             Impots.gouv.fr sera-t-il cité dans le prochain communiqué officiel
             parlant d’une fuite de données ?
           </h2>
           <p class="muted">
-            Question tirée d’un chapeau administratif. Le pourcentage reflète
-            uniquement les votes et ne décrit aucun risque réel.
+            Votre avis, pas un audit. Aucune information privilégiée, même chez
+            l’oracle.
           </p>
           <div class="chart">
             <div class="chart-head">
               <div>
-                <small>COTE OUI</small><strong id="chart-yes">…</strong>
+                <small>LE OUI DANS LES VOTES</small
+                ><strong id="chart-yes">…</strong>
               </div>
               <p>Volume fictif<br /><b>12 345 PNY</b></p>
             </div>
             <svg
-              viewBox="0 0 640 150"
-              aria-label="Courbe décorative de cote fictive"
+              viewBox="0 0 640 115"
+              role="img"
+              aria-label="Courbe purement décorative, sans historique de votes"
             >
               <path
                 class="area"
-                d="M4 116C45 109 68 118 100 101s55-25 90-14 48 21 84-3 52-36 86-22 61 35 94 9 56-35 94-16 46-10 88-27v118H4Z"
+                d="M0 98L48 88 79 92 117 64 150 75 197 62 225 73 260 42 295 51 331 39 361 57 402 24 440 35 478 18 510 34 550 13 590 25 640 6V115H0Z"
               />
               <path
                 class="line"
-                d="M4 116C45 109 68 118 100 101s55-25 90-14 48 21 84-3 52-36 86-22 61 35 94 9 56-35 94-16 46-10 88-27"
+                d="M0 98L48 88 79 92 117 64 150 75 197 62 225 73 260 42 295 51 331 39 361 57 402 24 440 35 478 18 510 34 550 13 590 25 640 6"
               />
             </svg>
+            <div class="chart-caption">
+              <span>Avant le café</span
+              ><span>Courbe décorative, évidemment</span
+              ><span>Après le déni</span>
+            </div>
           </div>
         </article>
-
-        <aside class="ballot" aria-labelledby="ballot-title">
+        <aside
+          class="ballot"
+          data-market="impots-next-official-notice"
+          aria-labelledby="ballot-title"
+        >
           <div class="ballot-head">
-            <h3 id="ballot-title">Votre non-pari</h3>
+            <h3 id="ballot-title">Placer un non-pari</h3>
             <span>0,00 €</span>
           </div>
-          <p class="muted">
-            Choisissez un bouton. Il ne se passera presque rien.
-          </p>
+          <p class="muted">Votre capital : une conviction discutable.</p>
           <div class="choices">
-            <button id="choice-yes" class="choice yes" type="button">
-              <span>OUI</span><strong id="quote-yes">50 ¢</strong>
-            </button>
-            <button id="choice-no" class="choice no" type="button">
-              <span>NON</span><strong id="quote-no">50 ¢</strong>
+            <button class="choice yes" data-choice="yes" type="button" disabled>
+              <span>YES · OUI</span><strong data-quote="yes">…</strong></button
+            ><button class="choice no" data-choice="no" type="button" disabled>
+              <span>NO · NON</span><strong data-quote="no">…</strong>
             </button>
           </div>
           <div class="tally">
-            <div>
-              <span id="vote-total">Votes en cours…</span><span>0 PNY</span>
-            </div>
-            <progress id="yes-bar" max="100" value="50">50 %</progress>
+            <span data-total>Chargement des votes…</span
+            ><progress max="100" value="50">50 %</progress>
           </div>
-          <button id="submit-vote" class="submit" type="button" disabled>
-            Choisir OUI ou NON
+          <button class="submit" type="button" disabled>
+            Choisir son camp
           </button>
-          <p id="vote-status" class="status" aria-live="polite">
-            1 vote par IP et par marché. Adresse IP jamais stockée.
+          <p class="status" aria-live="polite">
+            Une voix par IP et par marché.
           </p>
           <div class="oracle">
-            <span>✣</span>
+            <span aria-hidden="true">✳</span>
             <div>
-              <small>ORACLE CERTIFIÉ N’IMPORTE QUOI</small
-              ><strong>Capture Twitter d’un stagiaire</strong>
-              <p>Plan B : pile ou face, pièce fournie par le Trésor public.</p>
+              <small>ORACLE AGRÉÉ PAR LUI-MÊME</small
+              ><strong>Screenshot Twitter d’un stagiaire</strong>
+              <p>Plan B : pile ou face, pièce du Trésor public.</p>
             </div>
           </div>
         </aside>
       </section>
-
       <section id="markets" class="more">
-        <h2>Autres marchés très sérieux</h2>
-        <div class="cards">
-          <article>
-            <div><span>FAKE</span><small>42 069 PNY</small></div>
-            <h3>
-              Le mot « maintenance » apparaîtra-t-il avant « incident cyber » ?
-            </h3>
-            <p><b>OUI 73 ¢</b><b>NON 27 ¢</b></p>
-            <footer>Oracle : Ctrl+F dans le communiqué</footer>
-          </article>
-          <article>
-            <div><span>FAKE</span><small>8 008 PNY</small></div>
-            <h3>La prochaine annonce tombera-t-elle un vendredi à 17 h 59 ?</h3>
-            <p><b>OUI 34 ¢</b><b>NON 66 ¢</b></p>
-            <footer>Oracle : horloge parlante fatiguée</footer>
-          </article>
-          <article>
-            <div><span>FAKE</span><small>404 404 PNY</small></div>
-            <h3>
-              Quelqu’un proposera-t-il de « changer tous les mots de passe » ?
-            </h3>
-            <p><b>OUI 91 ¢</b><b>NON 9 ¢</b></p>
-            <footer>Oracle : capture Twitter d’un stagiaire</footer>
-          </article>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Fort potentiel de mauvaise foi</p>
+            <h2>La salle des non-marchés<span>.</span></h2>
+          </div>
+          <span class="market-count">12 marchés · 0 expert</span>
         </div>
+        <div class="market-toolbar">
+          <div class="filters" role="group" aria-label="Catégories de marchés">
+            <button type="button" data-filter="Tous" aria-pressed="true">
+              Tous les délires</button
+            ><button
+              type="button"
+              data-filter="Cyber-loto"
+              aria-pressed="false"
+            >
+              Cyber-loto</button
+            ><button
+              type="button"
+              data-filter="Bureaucratie"
+              aria-pressed="false"
+            >
+              Bureaucratie</button
+            ><button
+              type="button"
+              data-filter="Langue de bois"
+              aria-pressed="false"
+            >
+              Langue de bois</button
+            ><button
+              type="button"
+              data-filter="Solutions souveraines"
+              aria-pressed="false"
+            >
+              Solutions souveraines
+            </button>
+          </div>
+          <label class="search"
+            ><span class="sr-only">Rechercher un marché</span
+            ><input
+              type="search"
+              id="market-search"
+              placeholder="Chercher une mauvaise idée…"
+              maxlength="100"
+          /></label>
+        </div>
+        <div id="market-grid" class="cards"></div>
+        <p id="empty-markets" hidden>
+          Aucun marché. Même le n’importe quoi a ses limites.
+        </p>
+        <noscript
+          ><p>
+            Activez JavaScript pour parcourir les 12 marchés et voter. Aucun
+            compte n’est nécessaire.
+          </p></noscript
+        >
       </section>
-
-      <section id="method" class="method">
+      <section class="bottom-banner">
+        <span class="banner-icon" aria-hidden="true">✳</span>
         <div>
-          <span>MÉTHODE DOUTEUSE</span>
-          <h2>Oracle : le communiqué, sinon la pièce</h2>
-          <p>
-            Les marchés ne prétendent ni prévoir un incident ni mesurer une
-            vulnérabilité. Ils ne sont résolus que pour la blague, à partir
-            d’une annonce publique.
-          </p>
+          <p class="eyebrow">L’oracle a parlé</p>
+          <h2>« Selon nos sources, on n’en sait rien. »</h2>
+          <p>Une analyse indépendante, réalisée entre deux pauses café.</p>
         </div>
-        <div>
-          <span>CONFIDENTIALITÉ</span>
-          <h2>Une empreinte, jamais l’adresse</h2>
-          <p>
-            L’IP est transformée par HMAC avec un secret serveur et le marché
-            actif. La base ne reçoit jamais l’adresse brute et ne permet pas de
-            relier deux marchés.
-          </p>
-        </div>
+        <a href="/about">Découvrir la méthode ↗</a>
       </section>
     </main>
-
     <footer class="site-footer">
-      <span
-        >PwnyMarket est une parodie indépendante, sans affiliation avec
-        Polymarket ni l’administration française.</span
-      ><span>MIT · 0 € réel · 0 tracker</span>
+      <div>
+        <strong>PwnyMarket<span>® non déposé, juste dépité.</span></strong>
+        <p>
+          Parodie indépendante. Ni Polymarket, ni l’État, ni un conseil en
+          cybersécurité.
+        </p>
+      </div>
+      <nav aria-label="Informations">
+        <a href="/about">À propos</a><a href="/privacy">Confidentialité</a
+        ><a href="https://github.com/bluetouff/pwnymarket">Code source · MIT</a>
+      </nav>
     </footer>
   </body>
 </html>

@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-  ACTIVE_MARKET_ID,
+  MARKET_IDS,
   createVoterKey,
   isSameOriginVoteRequest,
   normalizeProxyIp,
@@ -29,10 +29,21 @@ const assets = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
+  ['/markets.js', ['markets.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/favicon.svg', ['favicon.svg', 'image/svg+xml']],
+  ['/marianne.png', ['marianne.png', 'image/png']],
+  ['/manrope-medium.ttf', ['manrope-medium.ttf', 'font/ttf']],
+  ['/manrope-OFL.txt', ['manrope-OFL.txt', 'text/plain; charset=utf-8']],
   ['/og.png', ['og.png', 'image/png']],
+  ['/about', ['about.html', 'text/html; charset=utf-8']],
+  ['/privacy', ['privacy.html', 'text/html; charset=utf-8']],
+  ['/robots.txt', ['robots.txt', 'text/plain; charset=utf-8']],
 ]);
+// A new asset namespace prevents previously cached v1 JS/CSS breaking the new DOM.
+for (const path of ['/app.js', '/markets.js', '/styles.css', '/og.png']) {
+  assets.set('/assets/v2' + path, assets.get(path));
+}
 for (const [path, asset] of assets) {
   assets.set(path, {
     body: readFileSync(join(root, 'public', asset[0])),
@@ -54,10 +65,10 @@ function sendJson(response, status, body) {
   });
 }
 
-function identifyVoter(request) {
+function identifyVoter(request, marketId) {
   if (request.headers['x-forwarded-proto'] !== 'https') return null;
   const ip = normalizeProxyIp(request.headers['x-forwarded-for']);
-  return ip ? createVoterKey(secret, ip, ACTIVE_MARKET_ID) : null;
+  return ip ? createVoterKey(secret, ip, marketId) : null;
 }
 
 async function readVoteBody(request) {
@@ -83,7 +94,7 @@ async function readVoteBody(request) {
     throw new TypeError('Invalid vote');
   if (Object.keys(value).sort().join(',') !== 'choice,marketId')
     throw new TypeError('Invalid vote');
-  if (value.marketId !== ACTIVE_MARKET_ID || !VOTE_CHOICES.has(value.choice))
+  if (!MARKET_IDS.has(value.marketId) || !VOTE_CHOICES.has(value.choice))
     throw new TypeError('Invalid vote');
   return value;
 }
@@ -100,26 +111,40 @@ const server = createServer(async (request, response) => {
       });
     }
 
+    if (url.pathname === '/api/markets' && request.method === 'GET') {
+      if (url.search)
+        return sendJson(response, 400, { error: 'invalid_query' });
+      if (store.failed)
+        return sendJson(response, 503, { error: 'storage_unavailable' });
+      const markets = {};
+      for (const id of MARKET_IDS) {
+        const voterKey = identifyVoter(request, id);
+        if (!voterKey)
+          return sendJson(response, 503, {
+            error: 'vote_identity_unavailable',
+          });
+        markets[id] = store.summary(id, voterKey);
+      }
+      return sendJson(response, 200, { markets });
+    }
+
     if (url.pathname === '/api/votes' && request.method === 'GET') {
-      if (
-        url.searchParams.get('market') !== ACTIVE_MARKET_ID ||
-        url.searchParams.size !== 1
-      ) {
+      const marketId = url.searchParams.get('market');
+      if (!MARKET_IDS.has(marketId) || url.searchParams.size !== 1) {
         return sendJson(response, 400, { error: 'unknown_market' });
       }
-      const voterKey = identifyVoter(request);
+      if (store.failed)
+        return sendJson(response, 503, { error: 'storage_unavailable' });
+      const voterKey = identifyVoter(request, marketId);
       if (!voterKey)
         return sendJson(response, 503, { error: 'vote_identity_unavailable' });
-      return sendJson(response, 200, store.summary(ACTIVE_MARKET_ID, voterKey));
+      return sendJson(response, 200, store.summary(marketId, voterKey));
     }
 
     if (url.pathname === '/api/votes' && request.method === 'POST') {
       if (!isSameOriginVoteRequest(request.headers, publicOrigin)) {
         return sendJson(response, 403, { error: 'cross_origin_request' });
       }
-      const voterKey = identifyVoter(request);
-      if (!voterKey)
-        return sendJson(response, 503, { error: 'vote_identity_unavailable' });
       let vote;
       try {
         vote = await readVoteBody(request);
@@ -129,6 +154,9 @@ const server = createServer(async (request, response) => {
             error instanceof RangeError ? 'request_too_large' : 'invalid_vote',
         });
       }
+      const voterKey = identifyVoter(request, vote.marketId);
+      if (!voterKey)
+        return sendJson(response, 503, { error: 'vote_identity_unavailable' });
       const accepted = store.record(vote.marketId, voterKey, vote.choice);
       return sendJson(response, accepted ? 201 : 409, {
         ...store.summary(vote.marketId, voterKey),
@@ -143,10 +171,9 @@ const server = createServer(async (request, response) => {
     if (!asset || url.search)
       return sendJson(response, 404, { error: 'not_found' });
     send(response, 200, request.method === 'HEAD' ? null : asset.body, {
-      'Cache-Control':
-        url.pathname === '/' || url.pathname === '/index.html'
-          ? 'no-cache'
-          : 'public, max-age=3600',
+      'Cache-Control': asset.type.startsWith('text/html')
+        ? 'no-cache'
+        : 'public, max-age=3600',
       'Content-Type': asset.type,
     });
   } catch {

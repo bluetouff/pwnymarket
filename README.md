@@ -43,6 +43,12 @@ npm run dev
 
 La migration D1 se trouve dans `drizzle/0000_right_bug.sql`. Les fichiers `.env*`, la base locale Wrangler et les artefacts de build sont ignorés par Git.
 
+## Runtime Zen
+
+Le dossier `zen/` contient une variante sans dépendance npm pour Debian/Node 20. Elle sert l’interface et l’API à travers un socket Unix, avec un registre append-only en `0600`. Apache supprime les en-têtes d’IP fournis par le client avant d’ajouter l’adresse réseau observée ; Node la transforme immédiatement par HMAC et ne la journalise pas.
+
+Les fichiers `deploy/zen/` préparent une release immuable sous `/var/www/html/pwnymarket`, un service systemd cloisonné et un vhost HTTPS. L’activation publique refuse de continuer sans DNS résolu, certificat valide pour `pwnymarket.l0g.fr`, service sain et configuration Apache valide. La CSP n’autorise ni script inline, ni évaluation dynamique, ni ressource tierce.
+
 ## Contrôles
 
 ```bash

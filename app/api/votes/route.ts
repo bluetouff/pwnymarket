@@ -33,12 +33,12 @@ function isSameOriginRequest(request: Request): boolean {
 }
 
 async function readSmallJsonBody(request: Request): Promise<unknown> {
-  if (
-    !request.headers
-      .get('content-type')
-      ?.toLowerCase()
-      .startsWith('application/json')
-  ) {
+  const mediaType = request.headers
+    .get('content-type')
+    ?.split(';', 1)[0]
+    .trim()
+    .toLowerCase();
+  if (mediaType !== 'application/json') {
     throw new TypeError('invalid-content-type');
   }
 

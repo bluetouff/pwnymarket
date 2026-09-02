@@ -37,7 +37,14 @@ void test('production rejects EOL, unpatched, prerelease and unreviewed Node lin
   ]) {
     assert.equal(isSupportedProductionRuntime(version), false, version);
   }
-  for (const version of ['22.23.2', '22.24.0', '24.20.0', '24.20.1']) {
+  for (const version of [
+    '22.23.2',
+    '22.24.0',
+    '24.18.1',
+    '24.19.0',
+    '24.20.0',
+    '24.20.1',
+  ]) {
     assert.equal(isSupportedProductionRuntime(version), true, version);
   }
 });

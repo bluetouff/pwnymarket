@@ -5,8 +5,8 @@ if [[ ${EUID} -ne 0 ]]; then
   echo "Run as root." >&2
   exit 1
 fi
-if [[ $# -ne 2 ]]; then
-  echo "Usage: $0 RELEASE_DIR SOURCE_SHA" >&2
+if [[ $# -ne 3 ]]; then
+  echo "Usage: $0 RELEASE_DIR SOURCE_SHA NODE_BINARY" >&2
   exit 2
 fi
 
@@ -26,7 +26,22 @@ if find "${release_dir}" -type l -print -quit | grep -q .; then
 fi
 
 # Abort before any Apache, systemd, account or filesystem mutation on old Node.
-/usr/bin/node "${release_dir}/deploy/zen/check-runtime.mjs"
+node_binary=$(realpath --canonicalize-existing "$3")
+if [[ ! ${node_binary} =~ ^/[A-Za-z0-9_./-]+$ || ! -f ${node_binary} || ! -x ${node_binary} ]]; then
+  echo "Invalid Node binary path." >&2
+  exit 2
+fi
+checked_path=${node_binary}
+while true; do
+  permissions=$(stat -c %a "${checked_path}")
+  if [[ $(stat -c %u "${checked_path}") != 0 ]] || (( (8#${permissions} & 0022) != 0 )); then
+    echo "Node and its parent directories must be root-owned and not group/world writable." >&2
+    exit 2
+  fi
+  [[ ${checked_path} == / ]] && break
+  checked_path=$(dirname "${checked_path}")
+done
+"${node_binary}" "${release_dir}/deploy/zen/check-runtime.mjs"
 
 target=/var/www/html/pwnymarket/releases/${source_sha}
 candidate=${target}.candidate
@@ -74,7 +89,10 @@ if [[ ! -e /etc/pwnymarket.env ]]; then
   chmod 0600 /etc/pwnymarket.env
 fi
 
-install -m 0644 -o root -g root "${target}/deploy/zen/pwnymarket.service" /etc/systemd/system/pwnymarket.service
+service_candidate=$(mktemp /etc/systemd/system/pwnymarket.service.XXXXXX)
+sed "s|__NODE_BINARY__|${node_binary}|g" "${target}/deploy/zen/pwnymarket.service" > "${service_candidate}"
+install -m 0644 -o root -g root "${service_candidate}" /etc/systemd/system/pwnymarket.service
+rm -f "${service_candidate}"
 previous_target=$(readlink -f /var/www/html/pwnymarket/current 2>/dev/null || true)
 ln -sfn "${target}" /var/www/html/pwnymarket/current.next
 mv -Tf /var/www/html/pwnymarket/current.next /var/www/html/pwnymarket/current

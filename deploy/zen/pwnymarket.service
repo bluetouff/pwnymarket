@@ -12,8 +12,8 @@ Environment=PWNYMARKET_PUBLIC_ORIGIN=https://pwnymarket.l0g.fr
 Environment=PWNYMARKET_SOCKET=/run/pwnymarket/pwnymarket.sock
 Environment=PWNYMARKET_LEDGER=/var/lib/pwnymarket/votes.ndjson
 EnvironmentFile=/etc/pwnymarket.env
-ExecStartPre=/usr/bin/node /var/www/html/pwnymarket/current/deploy/zen/check-runtime.mjs
-ExecStart=/usr/bin/node /var/www/html/pwnymarket/current/zen/server.mjs
+ExecStartPre=__NODE_BINARY__ /var/www/html/pwnymarket/current/deploy/zen/check-runtime.mjs
+ExecStart=__NODE_BINARY__ /var/www/html/pwnymarket/current/zen/server.mjs
 Restart=on-failure
 RestartSec=3s
 TimeoutStartSec=15s

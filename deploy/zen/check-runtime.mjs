@@ -9,7 +9,7 @@ export function isSupportedProductionRuntime(version) {
   const [, major, minor, patch] = match.map(Number);
   return (
     (major === 22 && (minor > 23 || (minor === 23 && patch >= 2))) ||
-    (major === 24 && minor >= 20)
+    (major === 24 && (minor > 18 || (minor === 18 && patch >= 1)))
   );
 }
 
@@ -19,7 +19,7 @@ if (
 ) {
   if (!isSupportedProductionRuntime(process.versions.node)) {
     console.error(
-      'Production requires patched LTS Node 22.23.2+ or 24.20.0+; no runtime is upgraded automatically.',
+      'Production requires patched LTS Node 22.23.2+ or 24.18.1+; no runtime is upgraded automatically.',
     );
     process.exitCode = 1;
   }

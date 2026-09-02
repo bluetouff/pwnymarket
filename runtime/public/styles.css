@@ -167,6 +167,62 @@ button[hidden],
   border-radius: 8px;
   font-weight: 700;
 }
+.share-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 16px max(24px, calc((100% - 1280px) / 2));
+  background: #edf2ff;
+  border-bottom: 1px solid #d4dff8;
+}
+.share-bar p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.share-bar p span {
+  display: block;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 15px;
+}
+.share-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.share-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 1px solid #bfceef;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.share-link:hover {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+  text-decoration: none;
+}
+.share-email {
+  color: #b42537;
+  border-color: #e5bac0;
+}
+.share-email:hover {
+  background: #b42537;
+  border-color: #b42537;
+}
 .ticker {
   background: #11244a;
   color: #c7d2ed;
@@ -1059,6 +1115,23 @@ progress::-moz-progress-bar {
   .ticker {
     gap: 22px;
     padding: 10px 16px;
+  }
+  .share-bar {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .share-bar p {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+  }
+  .share-links {
+    width: 100%;
+  }
+  .share-link {
+    flex: 1 1 auto;
+    padding: 10px 12px;
   }
   .ticker-index {
     font-size: 10px;

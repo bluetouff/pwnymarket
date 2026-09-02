@@ -14,6 +14,7 @@ import {
 } from './security.mjs';
 import { VoteStore } from './store.mjs';
 import { renderArchives } from './archive.mjs';
+import { renderShareLinks } from './share.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const socketPath = process.env.PWNYMARKET_SOCKET;
@@ -55,8 +56,16 @@ assets.set('/assets/v2/og.png', ['og-v2.png', 'image/png']);
 assets.set('/assets/v3/og.png', ['og.png', 'image/png']);
 assets.set('/assets/v3/styles.css', ['styles.css', 'text/css; charset=utf-8']);
 assets.set('/assets/v4/styles.css', ['styles.css', 'text/css; charset=utf-8']);
+assets.set('/assets/v5/styles.css', ['styles.css', 'text/css; charset=utf-8']);
 for (const [path, asset] of assets) {
   let body = readFileSync(join(root, 'public', asset[0]));
+  if (asset[1].startsWith('text/html')) {
+    body = Buffer.from(
+      body
+        .toString('utf8')
+        .replace('<!-- SHARE_LINKS -->', renderShareLinks(path)),
+    );
+  }
   if (path === '/archives') {
     body = Buffer.from(
       body
@@ -71,7 +80,12 @@ for (const [path, asset] of assets) {
 }
 
 const store = new VoteStore(ledgerPath);
-const notFoundPage = readFileSync(join(root, 'public', '404.html'));
+const notFoundPage = Buffer.from(
+  readFileSync(join(root, 'public', '404.html'), 'utf8').replace(
+    '<!-- SHARE_LINKS -->',
+    renderShareLinks('/404'),
+  ),
+);
 
 function send(response, status, body, headers = {}) {
   response.writeHead(status, { ...SECURITY_HEADERS, ...headers });

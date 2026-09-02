@@ -28,6 +28,7 @@ export const SECURITY_HEADERS = Object.freeze({
   'Referrer-Policy': 'no-referrer',
   'Strict-Transport-Security': 'max-age=31536000',
   'X-Content-Type-Options': 'nosniff',
+  'X-DNS-Prefetch-Control': 'off',
   'X-Frame-Options': 'DENY',
 });
 

@@ -22,6 +22,7 @@ import {
   SECURITY_HEADERS,
 } from '../runtime/security.mjs';
 import { VoteStore } from '../runtime/store.mjs';
+import { renderShareLinks } from '../runtime/share.mjs';
 
 const secret = '0123456789abcdef0123456789abcdef';
 const namespace = 'pwnymarket-test-v1';
@@ -381,6 +382,7 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
     '/assets/v3/og.png',
     '/assets/v3/styles.css',
     '/assets/v4/styles.css',
+    '/assets/v5/styles.css',
     '/markets.js',
     '/manrope-medium.ttf',
     '/marianne.png',
@@ -396,11 +398,23 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
   assert.match(archive.body, /70 000 dossiers/);
   assert.match(archive.body, /774 000 personnes/);
   assert.doesNotMatch(archive.body, /ARCHIVE_ENTRIES|<script\b/);
+  for (const path of ['/', '/index.html', '/about', '/privacy', '/archives']) {
+    const page = await unixRequest(socketPath, { path });
+    assert.equal(page.status, 200);
+    assert.ok(page.body.includes(renderShareLinks(path)), path);
+    assert.doesNotMatch(page.body, /SHARE_LINKS/);
+    assert.match(page.body, /href="\/assets\/v5\/styles.css"/);
+    assert.equal(page.headers['x-dns-prefetch-control'], 'off');
+    assert.equal(page.headers['referrer-policy'], 'no-referrer');
+    assert.equal(page.headers['set-cookie'], undefined);
+  }
   for (const path of [
     '/404',
     '/page-inconnue',
     '/%3Cscript%3Ealert(1)%3C/script%3E',
     '/.env',
+    '/missing?visitor=private-value',
+    '/?visitor=private-value',
   ]) {
     const missing = await unixRequest(socketPath, { path });
     assert.equal(missing.status, 404);
@@ -412,7 +426,11 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
     assert.equal(missing.headers['x-robots-tag'], 'noindex');
     assert.match(missing.body, /Cette page a pris la fuite/);
     assert.match(missing.body, /href="\/">Retour aux marchés/);
-    assert.doesNotMatch(missing.body, /alert\(1\)|<script\b|style=/);
+    assert.doesNotMatch(
+      missing.body,
+      /alert\(1\)|<script\b|style=|private-value|SHARE_LINKS/,
+    );
+    assert.ok(missing.body.includes(renderShareLinks('/404')));
   }
   const missingApi = await unixRequest(socketPath, { path: '/api/unknown' });
   assert.equal(missingApi.status, 404);

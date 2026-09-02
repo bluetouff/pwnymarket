@@ -41,15 +41,26 @@ export function normalizeProxyIp(value) {
   return isIP(candidate) ? candidate : null;
 }
 
-export function createVoterKey(secret, ip, marketId) {
+export function isValidVoteNamespace(value) {
+  return (
+    typeof value === 'string' &&
+    value === value.trim() &&
+    /^[a-z0-9][a-z0-9._-]{0,63}$/.test(value)
+  );
+}
+
+export function createVoterKey(secret, ip, marketId, namespace) {
   if (typeof secret !== 'string' || secret.length < 32) {
     throw new Error('Vote hashing is not configured');
   }
   if (!normalizeProxyIp(ip) || !MARKET_IDS.has(marketId)) {
     throw new TypeError('Invalid voter identity');
   }
+  if (!isValidVoteNamespace(namespace)) {
+    throw new Error('Vote namespace is not configured');
+  }
   return createHmac('sha256', secret)
-    .update(`pwnymarket-zen-v1\0${marketId}\0${ip}`)
+    .update(`${namespace}\0${marketId}\0${ip}`)
     .digest('hex');
 }
 

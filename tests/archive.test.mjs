@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ARCHIVES, ARCHIVE_REVIEWED_AT } from '../zen/archive-data.mjs';
-import { renderArchives } from '../zen/archive.mjs';
+import { ARCHIVES, ARCHIVE_REVIEWED_AT } from '../runtime/archive-data.mjs';
+import { renderArchives } from '../runtime/archive.mjs';
 
 test('archive records have distinct IDs, bounded dates and official sources only', () => {
   assert.equal(ARCHIVES.length, 24);

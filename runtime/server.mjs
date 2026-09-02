@@ -1,11 +1,12 @@
 import { lstatSync, readFileSync, unlinkSync, chmodSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { dirname, join } from 'node:path';
+import { dirname, isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
   MARKET_IDS,
   createVoterKey,
+  isValidVoteNamespace,
   isSameOriginVoteRequest,
   normalizeProxyIp,
   SECURITY_HEADERS,
@@ -15,16 +16,19 @@ import { VoteStore } from './store.mjs';
 import { renderArchives } from './archive.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
-const socketPath =
-  process.env.PWNYMARKET_SOCKET || '/run/pwnymarket/pwnymarket.sock';
-const ledgerPath =
-  process.env.PWNYMARKET_LEDGER || '/var/lib/pwnymarket/votes.ndjson';
+const socketPath = process.env.PWNYMARKET_SOCKET;
+const ledgerPath = process.env.PWNYMARKET_LEDGER;
 const publicOrigin =
   process.env.PWNYMARKET_PUBLIC_ORIGIN || 'https://pwnymarket.fr';
 const secret = process.env.VOTE_HASH_SECRET;
+const voteNamespace = process.env.VOTE_HASH_NAMESPACE;
 
 if (!secret || secret.length < 32)
   throw new Error('Vote hashing is not configured');
+if (!isValidVoteNamespace(voteNamespace))
+  throw new Error('Vote namespace is not configured');
+if (!isAbsolute(socketPath || '') || !isAbsolute(ledgerPath || ''))
+  throw new Error('Application paths are not configured');
 
 const assets = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
@@ -50,6 +54,7 @@ for (const path of ['/app.js', '/markets.js', '/styles.css', '/og.png']) {
 assets.set('/assets/v2/og.png', ['og-v2.png', 'image/png']);
 assets.set('/assets/v3/og.png', ['og.png', 'image/png']);
 assets.set('/assets/v3/styles.css', ['styles.css', 'text/css; charset=utf-8']);
+assets.set('/assets/v4/styles.css', ['styles.css', 'text/css; charset=utf-8']);
 for (const [path, asset] of assets) {
   let body = readFileSync(join(root, 'public', asset[0]));
   if (path === '/archives') {
@@ -83,7 +88,7 @@ function sendJson(response, status, body) {
 function identifyVoter(request, marketId) {
   if (request.headers['x-forwarded-proto'] !== 'https') return null;
   const ip = normalizeProxyIp(request.headers['x-forwarded-for']);
-  return ip ? createVoterKey(secret, ip, marketId) : null;
+  return ip ? createVoterKey(secret, ip, marketId, voteNamespace) : null;
 }
 
 async function readVoteBody(request) {

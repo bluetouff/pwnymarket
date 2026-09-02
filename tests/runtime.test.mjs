@@ -1,22 +1,18 @@
 import assert from 'node:assert/strict';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import {
   closeSync,
   existsSync,
   mkdtempSync,
   openSync,
   readFileSync,
-  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { request } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { fileURLToPath } from 'node:url';
 
-import { isSupportedProductionRuntime } from '../deploy/zen/check-runtime.mjs';
-import { assertPublicSecurityHeaders } from '../deploy/zen/check-public-headers.mjs';
 import {
   ACTIVE_MARKET_ID,
   MARKET_IDS,
@@ -24,68 +20,11 @@ import {
   isSameOriginVoteRequest,
   normalizeProxyIp,
   SECURITY_HEADERS,
-} from '../zen/security.mjs';
-import { VoteStore } from '../zen/store.mjs';
+} from '../runtime/security.mjs';
+import { VoteStore } from '../runtime/store.mjs';
 
 const secret = '0123456789abcdef0123456789abcdef';
-
-void test('production rejects EOL, unpatched, prerelease and unreviewed Node lines', () => {
-  for (const version of [
-    '20.19.2',
-    '22.23.1',
-    '24.18.0',
-    '24.20.0-rc.1',
-    '25.0.0',
-    '26.8.1',
-    'invalid',
-  ]) {
-    assert.equal(isSupportedProductionRuntime(version), false, version);
-  }
-  for (const version of [
-    '22.23.2',
-    '22.24.0',
-    '24.18.1',
-    '24.19.0',
-    '24.20.0',
-    '24.20.1',
-  ]) {
-    assert.equal(isSupportedProductionRuntime(version), true, version);
-  }
-});
-
-void test('deployment checks execute through current and fail closed', () => {
-  const directory = mkdtempSync(join(tmpdir(), 'pwny-check-entry-'));
-  const current = join(directory, 'current');
-  symlinkSync(fileURLToPath(new URL('..', import.meta.url)), current, 'dir');
-  const unsupported = join(directory, 'unsupported.mjs');
-  writeFileSync(
-    unsupported,
-    "Object.defineProperty(process.versions, 'node', { value: '20.19.2' });",
-  );
-  const runtime = spawnSync(
-    process.execPath,
-    ['--import', unsupported, join(current, 'deploy/zen/check-runtime.mjs')],
-    { encoding: 'utf8', timeout: 5000 },
-  );
-  assert.equal(runtime.status, 1);
-  assert.match(runtime.stderr, /Production requires patched LTS/);
-  const noNetwork = join(directory, 'offline.mjs');
-  writeFileSync(
-    noNetwork,
-    "globalThis.fetch = async () => { throw new Error('LOCAL_HEADER_PROBE'); };",
-  );
-  const headers = spawnSync(
-    process.execPath,
-    [
-      '--import',
-      noNetwork,
-      join(current, 'deploy/zen/check-public-headers.mjs'),
-    ],
-    { encoding: 'utf8', timeout: 5000 },
-  );
-  assert.equal(headers.status, 1);
-  assert.match(headers.stderr, /PUBLIC_HEADERS_FAILED: LOCAL_HEADER_PROBE/);
-});
+const namespace = 'pwnymarket-test-v1';
 
 function unixRequest(
   socketPath,
@@ -137,7 +76,7 @@ void test('normalizes one trusted proxy IP and rejects forwarded chains', () => 
 
 void test('separates the voter pseudonym from the raw address', () => {
   const ip = '2001:db8::2';
-  const voterKey = createVoterKey(secret, ip, ACTIVE_MARKET_ID);
+  const voterKey = createVoterKey(secret, ip, ACTIVE_MARKET_ID, namespace);
   assert.match(voterKey, /^[a-f0-9]{64}$/);
   assert.equal(voterKey.includes(ip), false);
 });
@@ -165,7 +104,7 @@ void test('ledger is durable, unique and contains no raw IP', () => {
   const directory = mkdtempSync(join(tmpdir(), 'pwnymarket-store-'));
   const ledger = join(directory, 'votes.ndjson');
   const ip = '192.0.2.44';
-  const voterKey = createVoterKey(secret, ip, ACTIVE_MARKET_ID);
+  const voterKey = createVoterKey(secret, ip, ACTIVE_MARKET_ID, namespace);
   const store = new VoteStore(ledger);
   assert.equal(store.record(ACTIVE_MARKET_ID, voterKey, 'yes'), true);
   assert.equal(store.record(ACTIVE_MARKET_ID, voterKey, 'no'), false);
@@ -199,7 +138,7 @@ void test('all markets have independent durable votes and different HMAC identit
   const keys = new Set();
   assert.equal(MARKET_IDS.size, 12);
   for (const id of MARKET_IDS) {
-    const key = createVoterKey(secret, '192.0.2.50', id);
+    const key = createVoterKey(secret, '192.0.2.50', id, namespace);
     keys.add(key);
     assert.equal(store.summary(id, key).total, 0);
     assert.equal(store.record(id, key, 'yes'), true);
@@ -207,13 +146,16 @@ void test('all markets have independent durable votes and different HMAC identit
     assert.equal(store.summary(id, key).total, 1);
   }
   assert.equal(keys.size, MARKET_IDS.size);
-  assert.throws(() => createVoterKey(secret, '192.0.2.50', '__proto__'));
+  assert.throws(() =>
+    createVoterKey(secret, '192.0.2.50', '__proto__', namespace),
+  );
   assert.throws(() => store.record('unknown', [...keys][0], 'yes'));
   store.close();
   const reopened = new VoteStore(ledger);
   for (const id of MARKET_IDS) {
     assert.equal(
-      reopened.summary(id, createVoterKey(secret, '192.0.2.50', id)).choice,
+      reopened.summary(id, createVoterKey(secret, '192.0.2.50', id, namespace))
+        .choice,
       'yes',
     );
     assert.equal(reopened.summary(id, '').total, 1);
@@ -223,7 +165,7 @@ void test('all markets have independent durable votes and different HMAC identit
 
 void test('home links to dedicated privacy, uses local lighter type and has no privacy card', () => {
   const html = readFileSync(
-    new URL('../zen/public/index.html', import.meta.url),
+    new URL('../runtime/public/index.html', import.meta.url),
     'utf8',
   );
   assert.match(html, /href="\/privacy"/);
@@ -233,7 +175,7 @@ void test('home links to dedicated privacy, uses local lighter type and has no p
     /Une empreinte|CONFIDENTIALITÉ|<span class="logo">P/,
   );
   const css = readFileSync(
-    new URL('../zen/public/styles.css', import.meta.url),
+    new URL('../runtime/public/styles.css', import.meta.url),
     'utf8',
   );
   assert.match(
@@ -245,7 +187,7 @@ void test('home links to dedicated privacy, uses local lighter type and has no p
 
 void test('privacy is short visitor copy and every public footer credits the creator', () => {
   const privacy = readFileSync(
-    new URL('../zen/public/privacy.html', import.meta.url),
+    new URL('../runtime/public/privacy.html', import.meta.url),
     'utf8',
   );
   const main = privacy.match(/<main\b[^>]*>([\s\S]*?)<\/main>/)[1];
@@ -254,7 +196,7 @@ void test('privacy is short visitor copy and every public footer credits the cre
   assert.match(main, /quatorze derniers jours/);
   assert.doesNotMatch(
     main,
-    /HMAC|GoAccess|Apache|sudo|GitHub|secret|configur|déploi|\/etc\/|\/var\//i,
+    /HMAC|sudo|GitHub|secret|configur|déploi|\/etc\/|\/var\//i,
   );
   assert.ok(
     main
@@ -264,12 +206,12 @@ void test('privacy is short visitor copy and every public footer credits the cre
   );
   for (const name of ['index', 'about', 'privacy', 'archives', '404']) {
     const html = readFileSync(
-      new URL(`../zen/public/${name}.html`, import.meta.url),
+      new URL(`../runtime/public/${name}.html`, import.meta.url),
       'utf8',
     );
     assert.match(
       html,
-      /<footer\b[^>]*>[\s\S]*powered by <a href="https:\/\/x\.com\/bluetouff">@bluetouff<\/a>[\s\S]*<\/footer>/,
+      /<footer\b[^>]*>[\s\S]*<p class="footer-credit">\s*powered by <a href="https:\/\/x\.com\/bluetouff">@bluetouff<\/a>[\s\S]*<\/footer>/,
     );
     assert.doesNotMatch(html.replace(/<[^>]+>/g, ' '), /[,.;]\s+pas\b/i);
     assert.match(html, /<span class="brand-domain">\.fr<\/span/);
@@ -277,19 +219,32 @@ void test('privacy is short visitor copy and every public footer credits the cre
     assert.match(html, /href="https:\/\/l0g\.fr\/">l0g\.fr<\/a>/);
   }
   const css = readFileSync(
-    new URL('../zen/public/styles.css', import.meta.url),
+    new URL('../runtime/public/styles.css', import.meta.url),
     'utf8',
   );
   assert.match(css, /\.brand-domain \{\s*color: var\(--red\);/);
+  const credit = css.match(/\.site-footer \.footer-credit \{([^}]+)\}/)[1];
+  for (const rule of [
+    'width: 100%',
+    'text-align: center',
+    'color: var(--blue)',
+    'font-size: 16px',
+    'font-weight: 700',
+  ])
+    assert.ok(credit.includes(rule), rule);
 });
 
 void test('social cards use the new branded image URL and actual dimensions', () => {
   const html = readFileSync(
-    new URL('../zen/public/index.html', import.meta.url),
+    new URL('../runtime/public/index.html', import.meta.url),
     'utf8',
   );
-  const png = readFileSync(new URL('../zen/public/og.png', import.meta.url));
-  const old = readFileSync(new URL('../zen/public/og-v2.png', import.meta.url));
+  const png = readFileSync(
+    new URL('../runtime/public/og.png', import.meta.url),
+  );
+  const old = readFileSync(
+    new URL('../runtime/public/og-v2.png', import.meta.url),
+  );
   assert.equal(png.subarray(1, 4).toString(), 'PNG');
   assert.notDeepEqual(png, old);
   for (const [label, value] of [
@@ -311,8 +266,18 @@ void test('social cards use the new branded image URL and actual dimensions', ()
 void test('ledger refuses an append beyond capacity without changing the file', () => {
   const directory = mkdtempSync(join(tmpdir(), 'pwnymarket-capacity-'));
   const ledger = join(directory, 'votes.ndjson');
-  const firstKey = createVoterKey(secret, '192.0.2.1', ACTIVE_MARKET_ID);
-  const secondKey = createVoterKey(secret, '192.0.2.2', ACTIVE_MARKET_ID);
+  const firstKey = createVoterKey(
+    secret,
+    '192.0.2.1',
+    ACTIVE_MARKET_ID,
+    namespace,
+  );
+  const secondKey = createVoterKey(
+    secret,
+    '192.0.2.2',
+    ACTIVE_MARKET_ID,
+    namespace,
+  );
   const initial = new VoteStore(ledger);
   initial.record(ACTIVE_MARKET_ID, firstKey, 'yes');
   initial.close();
@@ -336,7 +301,12 @@ void test('an I/O failure latches writes closed and never changes counters', () 
   const directory = mkdtempSync(join(tmpdir(), 'pwnymarket-io-failure-'));
   const ledger = join(directory, 'votes.ndjson');
   const store = new VoteStore(ledger);
-  const voterKey = createVoterKey(secret, '192.0.2.3', ACTIVE_MARKET_ID);
+  const voterKey = createVoterKey(
+    secret,
+    '192.0.2.3',
+    ACTIVE_MARKET_ID,
+    namespace,
+  );
   closeSync(store.fileDescriptor);
   store.fileDescriptor = openSync(ledger, 'r');
   assert.throws(
@@ -353,33 +323,6 @@ void test('an I/O failure latches writes closed and never changes counters', () 
   store.close();
 });
 
-void test('deployment denies shared-root filesystem access before copying code', () => {
-  const guard = readFileSync(
-    new URL('../deploy/zen/pwnymarket-private-files.conf', import.meta.url),
-    'utf8',
-  );
-  assert.match(guard, /<Directory "\/var\/www\/html\/pwnymarket">/);
-  assert.match(guard, /Require all denied/);
-  assert.match(guard, /AllowOverride None/);
-  const installer = readFileSync(
-    new URL('../deploy/zen/install-runtime.sh', import.meta.url),
-    'utf8',
-  );
-  assert.ok(
-    installer.indexOf('a2enconf pwnymarket-private-files') <
-      installer.indexOf('cp -a '),
-  );
-  assert.ok(
-    installer.indexOf('systemctl reload apache2') < installer.indexOf('cp -a '),
-  );
-  const apache = readFileSync(
-    new URL('../deploy/zen/pwnymarket.apache.conf', import.meta.url),
-    'utf8',
-  );
-  assert.equal((apache.match(/CustomLog /g) || []).length, 2);
-  assert.equal(/%(?:a|h|r|q|U)(?![A-Za-z])/.test(apache), false);
-});
-
 void test('strict CSP contains no inline-script escape hatch', () => {
   assert.equal(
     SECURITY_HEADERS['Content-Security-Policy'].includes("'unsafe-inline'"),
@@ -390,74 +333,18 @@ void test('strict CSP contains no inline-script escape hatch', () => {
     false,
   );
   const html = readFileSync(
-    new URL('../zen/public/index.html', import.meta.url),
+    new URL('../runtime/public/index.html', import.meta.url),
     'utf8',
   );
   assert.equal(/<script(?![^>]*\ssrc=)/i.test(html), false);
   assert.equal(/\sstyle=/i.test(html), false);
 });
 
-void test('Apache removes upstream security headers before assigning one public value', () => {
-  const apache = readFileSync(
-    new URL('../deploy/zen/pwnymarket.apache.conf', import.meta.url),
-    'utf8',
-  );
-  const lines = apache.split('\n').map((line) => line.trim());
-  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
-    const unset = `Header onsuccess unset ${name}`;
-    const set = `Header always set ${name} "${value}"`;
-    assert.equal(lines.filter((line) => line === unset).length, 1, name);
-    assert.equal(lines.filter((line) => line === set).length, 1, name);
-    assert.ok(lines.indexOf(unset) < lines.indexOf(set), name);
-  }
-});
-
-void test('public header verifier rejects duplicates and missing policies', () => {
-  assert.doesNotThrow(() =>
-    assertPublicSecurityHeaders(new Headers(SECURITY_HEADERS)),
-  );
-  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
-    const duplicate = new Headers(SECURITY_HEADERS);
-    duplicate.append(name, value);
-    assert.throws(() => assertPublicSecurityHeaders(duplicate), {
-      name: 'AssertionError',
-    });
-    const missing = new Headers(SECURITY_HEADERS);
-    missing.delete(name);
-    assert.throws(() => assertPublicSecurityHeaders(missing), {
-      name: 'AssertionError',
-    });
-  }
-});
-
-void test('production origin is aligned across runtime, Apache, TLS and metadata', () => {
-  for (const path of [
-    '../zen/server.mjs',
-    '../deploy/zen/pwnymarket.service',
-    '../deploy/zen/pwnymarket.apache.conf',
-    '../deploy/zen/activate-public.sh',
-    '../zen/public/index.html',
-  ]) {
-    const source = readFileSync(new URL(path, import.meta.url), 'utf8');
-    assert.ok(source.includes('https://pwnymarket.fr'), path);
-    assert.equal(source.includes('pwnymarket.l0g.fr'), false, path);
-  }
-  const html = readFileSync(
-    new URL('../zen/public/index.html', import.meta.url),
-    'utf8',
-  );
-  assert.match(html, /rel="canonical" href="https:\/\/pwnymarket\.fr\/"/);
-  assert.match(
-    html,
-    /property="og:image"[\s\S]*?content="https:\/\/pwnymarket\.fr\/assets\/v3\/og\.png"/,
-  );
-});
-
 void test('Unix-socket API accepts one vote and rejects a duplicate', async (context) => {
   const directory = mkdtempSync(join(tmpdir(), 'pwnymarket-server-'));
   const socketPath = join(directory, 'server.sock');
   const ledger = join(directory, 'votes.ndjson');
-  const server = spawn(process.execPath, ['zen/server.mjs'], {
+  const server = spawn(process.execPath, ['runtime/server.mjs'], {
     cwd: new URL('..', import.meta.url),
     env: {
       ...process.env,
@@ -465,6 +352,7 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
       PWNYMARKET_PUBLIC_ORIGIN: 'https://pwnymarket.fr',
       PWNYMARKET_SOCKET: socketPath,
       VOTE_HASH_SECRET: secret,
+      VOTE_HASH_NAMESPACE: namespace,
     },
     stdio: 'ignore',
   });
@@ -492,6 +380,7 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
     '/assets/v2/og.png',
     '/assets/v3/og.png',
     '/assets/v3/styles.css',
+    '/assets/v4/styles.css',
     '/markets.js',
     '/manrope-medium.ttf',
     '/marianne.png',

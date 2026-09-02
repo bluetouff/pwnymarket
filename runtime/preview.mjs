@@ -8,13 +8,14 @@ import { setTimeout as delay } from 'node:timers/promises';
 const directory = mkdtempSync('/private/tmp/pwny-preview-');
 const socketPath = join(directory, 'app.sock');
 const origin = 'http://127.0.0.1:4173';
-const child = spawn(process.execPath, ['zen/server.mjs'], {
+const child = spawn(process.execPath, ['runtime/server.mjs'], {
   env: {
     ...process.env,
     PWNYMARKET_SOCKET: socketPath,
     PWNYMARKET_LEDGER: join(directory, 'votes.ndjson'),
     PWNYMARKET_PUBLIC_ORIGIN: origin,
     VOTE_HASH_SECRET: randomBytes(32).toString('hex'),
+    VOTE_HASH_NAMESPACE: 'pwnymarket-preview-v1',
   },
   stdio: 'ignore',
 });

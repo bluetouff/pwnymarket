@@ -169,59 +169,98 @@ button[hidden],
 }
 .share-bar {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px 24px;
-  padding: 16px max(24px, calc((100% - 1280px) / 2));
-  background: #edf2ff;
-  border-bottom: 1px solid #d4dff8;
+  justify-content: flex-end;
+  gap: 18px;
+  padding: 9px max(24px, calc((100% - 1280px) / 2));
+  border-bottom: 1px solid var(--border);
 }
 .share-bar p {
   margin: 0;
   color: var(--muted);
-  font-size: 12px;
-  line-height: 1.6;
-}
-.share-bar p span {
-  display: block;
-  color: var(--ink);
+  font-size: 10px;
   font-weight: 700;
-  font-size: 15px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 .share-links {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
 }
 .share-link {
+  --share-accent: #15233a;
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  min-height: 44px;
-  padding: 10px 15px;
-  border: 1px solid #bfceef;
-  border-radius: 10px;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #dfe5ef;
+  border-radius: 50%;
   background: #fff;
-  color: var(--blue);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.5;
+  color: var(--share-accent);
+  box-shadow: 0 2px 4px #11244a08;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
 }
-.share-link:hover {
-  border-color: var(--blue);
-  background: var(--blue);
+.share-link svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+.share-link:hover,
+.share-link:focus-visible {
+  border-color: var(--share-accent);
+  background: var(--share-accent);
   color: #fff;
+  box-shadow: 0 4px 12px #11244a1a;
   text-decoration: none;
 }
-.share-email {
-  color: #b42537;
-  border-color: #e5bac0;
+.share-bluesky {
+  --share-accent: #0879e1;
 }
-.share-email:hover {
-  background: #b42537;
-  border-color: #b42537;
+.share-linkedin {
+  --share-accent: #0a66c2;
+}
+.share-facebook {
+  --share-accent: #0866ff;
+}
+.share-email {
+  --share-accent: #b42537;
+}
+.share-tooltip {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  left: 50%;
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity 160ms ease;
+}
+.share-link:last-child .share-tooltip {
+  right: 0;
+  left: auto;
+  transform: none;
+}
+.share-link:hover .share-tooltip,
+.share-link:focus-visible .share-tooltip {
+  visibility: visible;
+  opacity: 1;
 }
 .ticker {
   background: #11244a;
@@ -1117,21 +1156,8 @@ progress::-moz-progress-bar {
     padding: 10px 16px;
   }
   .share-bar {
-    padding: 14px 16px;
-    gap: 12px;
-  }
-  .share-bar p {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 4px 10px;
-  }
-  .share-links {
-    width: 100%;
-  }
-  .share-link {
-    flex: 1 1 auto;
-    padding: 10px 12px;
+    padding: 9px 16px;
+    gap: 14px;
   }
   .ticker-index {
     font-size: 10px;
@@ -1359,6 +1385,14 @@ progress::-moz-progress-bar {
   }
   .hero-links > span {
     font-size: 9px;
+  }
+}
+@media (max-width: 420px) {
+  .share-bar {
+    justify-content: center;
+  }
+  .share-bar p {
+    display: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {

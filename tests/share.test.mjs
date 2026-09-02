@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import test from 'node:test';
 import { renderShareLinks } from '../runtime/share.mjs';
+import { renderShareIcon } from '../runtime/share-icons.mjs';
 import { SECURITY_HEADERS } from '../runtime/security.mjs';
 
 const pages = [
@@ -16,7 +17,10 @@ function linksFrom(html) {
   return [...html.matchAll(/<a\b([^>]*)href="([^"]+)"([^>]*)>(.*?)<\/a>/g)].map(
     (match) => ({
       attributes: match[1] + match[3],
-      label: match[4].replace(/<span\b[^>]*>.*?<\/span>/g, ''),
+      label: match[4].match(
+        /<span class="share-tooltip" aria-hidden="true">([^<]+)<\/span>/,
+      )[1],
+      content: match[4],
       url: new URL(match[2].replaceAll('&amp;', '&')),
     }),
   );
@@ -39,6 +43,20 @@ test('all public pages have five script-free shares for their fixed URL and titl
     );
     const canonical = 'https://pwnymarket.fr' + route;
     const [x, bluesky, linkedin, facebook, email] = links;
+    for (const [index, icon] of [
+      'x',
+      'bluesky',
+      'linkedin',
+      'facebook',
+      'email',
+    ].entries()) {
+      assert.ok(links[index].content.includes(renderShareIcon(icon)));
+      assert.match(
+        links[index].attributes,
+        new RegExp('class="share-link share-' + icon + '"'),
+      );
+      assert.match(links[index].attributes, /aria-label="[^"\n]+"/);
+    }
     assert.equal(
       x.url.origin + x.url.pathname,
       'https://twitter.com/intent/tweet',
@@ -90,6 +108,31 @@ test('all public pages have five script-free shares for their fixed URL and titl
       /<(?:script|iframe|img|link|form)\b|\s(?:on\w+|ping|style)=|utm_/i,
     );
   }
+});
+
+test('share icons are fixed inline vectors with no active content or remote dependencies', () => {
+  for (const icon of ['x', 'bluesky', 'linkedin', 'facebook', 'email']) {
+    const svg = renderShareIcon(icon);
+    assert.match(svg, /^<svg [^>]+><path d="[a-zA-Z0-9. ,+-]+"\/><\/svg>$/);
+    assert.match(svg, /viewBox="0 0 16 16"/);
+    assert.match(svg, /aria-hidden="true" focusable="false"/);
+    assert.doesNotMatch(svg, /href=|<use\b|<image\b|<script\b|style=|on\w+=/i);
+  }
+  for (const icon of [
+    'unknown',
+    '__proto__',
+    '<svg onload=alert(1)>',
+    undefined,
+  ]) {
+    assert.throws(() => renderShareIcon(icon), /Unknown share icon/);
+  }
+  const css = readFileSync(
+    new URL('../runtime/public/styles.css', import.meta.url),
+    'utf8',
+  );
+  assert.match(css, /\.share-link\s*\{[^}]*width: 44px;[^}]*height: 44px;/);
+  assert.match(css, /\.share-link:focus-visible \.share-tooltip/);
+  assert.match(css, /prefers-reduced-motion: reduce/);
 });
 
 test('share renderer rejects arbitrary paths, query strings, hosts and private routes', () => {

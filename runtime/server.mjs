@@ -57,6 +57,7 @@ assets.set('/assets/v3/og.png', ['og.png', 'image/png']);
 assets.set('/assets/v3/styles.css', ['styles.css', 'text/css; charset=utf-8']);
 assets.set('/assets/v4/styles.css', ['styles.css', 'text/css; charset=utf-8']);
 assets.set('/assets/v5/styles.css', ['styles.css', 'text/css; charset=utf-8']);
+assets.set('/assets/v6/styles.css', ['styles.css', 'text/css; charset=utf-8']);
 for (const [path, asset] of assets) {
   let body = readFileSync(join(root, 'public', asset[0]));
   if (asset[1].startsWith('text/html')) {

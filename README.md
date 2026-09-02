@@ -47,12 +47,15 @@ La migration D1 se trouve dans `drizzle/0000_right_bug.sql`. Les fichiers `.env*
 
 Le dossier `zen/` contient une variante sans dépendance npm pour Debian/Node 20. Elle sert l’interface et l’API à travers un socket Unix, avec un registre append-only en `0600`. Apache supprime les en-têtes d’IP fournis par le client avant d’ajouter l’adresse réseau observée ; Node la transforme immédiatement par HMAC et ne la journalise pas.
 
-Les fichiers `deploy/zen/` préparent une release immuable sous `/var/www/html/pwnymarket`, un service systemd cloisonné et un vhost HTTPS. L’activation publique refuse de continuer sans DNS résolu, certificat valide pour `pwnymarket.l0g.fr`, service sain et configuration Apache valide. La CSP n’autorise ni script inline, ni évaluation dynamique, ni ressource tierce.
+Les fichiers `deploy/zen/` préparent une release immuable sous `/var/www/html/pwnymarket`, un service systemd cloisonné et un vhost HTTPS. Un refus d’accès Apache global protège le répertoire avant toute copie : seuls les fichiers publics explicitement autorisés par le runtime sont servis par le proxy. L’activation publique refuse de continuer sans DNS résolu, certificat valide pour `pwnymarket.l0g.fr`, service sain et configuration Apache valide. La CSP n’autorise ni script inline, ni évaluation dynamique, ni ressource tierce.
+
+Le registre est limité à 64 Mio. Une erreur d’écriture ou de synchronisation suspend les nouvelles écritures jusqu’à intervention ; le redémarrage refuse tout registre tronqué. Les compteurs de consultation sont calculés en temps constant, sans parcourir les votes à chaque requête.
 
 ## Contrôles
 
 ```bash
 npm run test:security
+npm run test:zen
 npm run lint
 npm run build
 npm audit

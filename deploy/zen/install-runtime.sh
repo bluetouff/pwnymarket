@@ -16,7 +16,7 @@ if [[ ! ${source_sha} =~ ^[a-f0-9]{40}$ ]]; then
   echo "Invalid source SHA." >&2
   exit 2
 fi
-if [[ ! -f ${release_dir}/zen/server.mjs || ! -f ${release_dir}/deploy/zen/pwnymarket.service ]]; then
+if [[ ! -f ${release_dir}/zen/server.mjs || ! -f ${release_dir}/deploy/zen/pwnymarket.service || ! -f ${release_dir}/deploy/zen/pwnymarket-private-files.conf ]]; then
   echo "Incomplete release." >&2
   exit 2
 fi
@@ -26,17 +26,37 @@ if find "${release_dir}" -type l -print -quit | grep -q .; then
 fi
 
 target=/var/www/html/pwnymarket/releases/${source_sha}
-if [[ -e ${target} ]]; then
+candidate=${target}.candidate
+if [[ -e ${target} || -e ${candidate} ]]; then
   echo "Release already exists; refusing to overwrite it." >&2
   exit 3
 fi
+
+# Protect the shared document root before copying any application files into it.
+guard=/etc/apache2/conf-available/pwnymarket-private-files.conf
+guard_enabled=false
+if [[ -e /etc/apache2/conf-enabled/pwnymarket-private-files.conf ]]; then
+  guard_enabled=true
+fi
+if [[ -e ${guard} ]] && ! cmp -s "${release_dir}/deploy/zen/pwnymarket-private-files.conf" "${guard}"; then
+  echo "An unexpected Apache filesystem guard already exists; refusing to replace it." >&2
+  exit 3
+fi
+install -m 0644 -o root -g root "${release_dir}/deploy/zen/pwnymarket-private-files.conf" "${guard}"
+a2enconf pwnymarket-private-files >/dev/null
+if ! apache2ctl configtest; then
+  if [[ ${guard_enabled} == false ]]; then
+    a2disconf pwnymarket-private-files >/dev/null || true
+  fi
+  exit 4
+fi
+systemctl reload apache2
 
 if ! id pwnymarket >/dev/null 2>&1; then
   useradd --system --gid www-data --home-dir /nonexistent --shell /usr/sbin/nologin pwnymarket
 fi
 
 install -d -m 0755 -o root -g root /var/www/html/pwnymarket/releases
-candidate=${target}.candidate
 install -d -m 0755 -o root -g root "${candidate}"
 cp -a --no-preserve=ownership "${release_dir}/." "${candidate}/"
 find "${candidate}" -type d -exec chmod 0755 {} +

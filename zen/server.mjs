@@ -95,7 +95,9 @@ const server = createServer(async (request, response) => {
     if (url.pathname === '/healthz') {
       if (request.method !== 'GET')
         return sendJson(response, 405, { error: 'method_not_allowed' });
-      return sendJson(response, 200, { status: 'ok' });
+      return sendJson(response, store.failed ? 503 : 200, {
+        status: store.failed ? 'storage_unavailable' : 'ok',
+      });
     }
 
     if (url.pathname === '/api/votes' && request.method === 'GET') {

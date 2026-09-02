@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  closeSync,
+  existsSync,
+  mkdtempSync,
+  openSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { request } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -116,6 +123,78 @@ void test('ledger fails closed on a truncated record', () => {
   const ledger = join(directory, 'votes.ndjson');
   writeFileSync(ledger, '{"partial":true}');
   assert.throws(() => new VoteStore(ledger), /truncated/);
+});
+
+void test('ledger refuses an append beyond capacity without changing the file', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'pwnymarket-capacity-'));
+  const ledger = join(directory, 'votes.ndjson');
+  const firstKey = createVoterKey(secret, '192.0.2.1', ACTIVE_MARKET_ID);
+  const secondKey = createVoterKey(secret, '192.0.2.2', ACTIVE_MARKET_ID);
+  const initial = new VoteStore(ledger);
+  initial.record(ACTIVE_MARKET_ID, firstKey, 'yes');
+  initial.close();
+  const before = readFileSync(ledger);
+  const full = new VoteStore(ledger, { maxBytes: before.length });
+  assert.equal(full.record(ACTIVE_MARKET_ID, firstKey, 'no'), false);
+  assert.throws(
+    () => full.record(ACTIVE_MARKET_ID, secondKey, 'no'),
+    /capacity/,
+  );
+  assert.deepEqual(readFileSync(ledger), before);
+  assert.equal(full.summary(ACTIVE_MARKET_ID, secondKey).total, 1);
+  full.close();
+  assert.throws(
+    () => new VoteStore(ledger, { maxBytes: before.length - 1 }),
+    /too large/,
+  );
+});
+
+void test('an I/O failure latches writes closed and never changes counters', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'pwnymarket-io-failure-'));
+  const ledger = join(directory, 'votes.ndjson');
+  const store = new VoteStore(ledger);
+  const voterKey = createVoterKey(secret, '192.0.2.3', ACTIVE_MARKET_ID);
+  closeSync(store.fileDescriptor);
+  store.fileDescriptor = openSync(ledger, 'r');
+  assert.throws(
+    () => store.record(ACTIVE_MARKET_ID, voterKey, 'yes'),
+    /unavailable/,
+  );
+  assert.equal(store.failed, true);
+  assert.throws(
+    () => store.record(ACTIVE_MARKET_ID, voterKey, 'no'),
+    /unavailable/,
+  );
+  assert.equal(store.summary(ACTIVE_MARKET_ID, voterKey).total, 0);
+  assert.equal(readFileSync(ledger, 'utf8'), '');
+  store.close();
+});
+
+void test('deployment denies shared-root filesystem access before copying code', () => {
+  const guard = readFileSync(
+    new URL('../deploy/zen/pwnymarket-private-files.conf', import.meta.url),
+    'utf8',
+  );
+  assert.match(guard, /<Directory "\/var\/www\/html\/pwnymarket">/);
+  assert.match(guard, /Require all denied/);
+  assert.match(guard, /AllowOverride None/);
+  const installer = readFileSync(
+    new URL('../deploy/zen/install-runtime.sh', import.meta.url),
+    'utf8',
+  );
+  assert.ok(
+    installer.indexOf('a2enconf pwnymarket-private-files') <
+      installer.indexOf('cp -a '),
+  );
+  assert.ok(
+    installer.indexOf('systemctl reload apache2') < installer.indexOf('cp -a '),
+  );
+  const apache = readFileSync(
+    new URL('../deploy/zen/pwnymarket.apache.conf', import.meta.url),
+    'utf8',
+  );
+  assert.equal((apache.match(/CustomLog /g) || []).length, 2);
+  assert.equal(/%(?:a|h|r|q|U)(?![A-Za-z])/.test(apache), false);
 });
 
 void test('strict CSP contains no inline-script escape hatch', () => {

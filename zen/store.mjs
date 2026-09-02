@@ -32,14 +32,25 @@ function assertRecord(record) {
 }
 
 export class VoteStore {
-  constructor(filePath) {
+  constructor(filePath, { maxBytes = MAX_LEDGER_BYTES } = {}) {
     if (!filePath) throw new Error('Vote ledger path is required');
+    if (
+      !Number.isSafeInteger(maxBytes) ||
+      maxBytes < 1 ||
+      maxBytes > MAX_LEDGER_BYTES
+    )
+      throw new Error('Invalid vote ledger capacity');
     mkdirSync(dirname(filePath), { mode: 0o700, recursive: true });
     this.filePath = filePath;
     this.votes = new Map();
+    this.counts = { yes: 0, no: 0 };
+    this.maxBytes = maxBytes;
+    this.byteLength = 0;
+    this.failed = false;
 
     if (existsSync(filePath)) {
-      if (statSync(filePath).size > MAX_LEDGER_BYTES)
+      this.byteLength = statSync(filePath).size;
+      if (this.byteLength > maxBytes)
         throw new Error('Vote ledger is too large');
       const contents = readFileSync(filePath, 'utf8');
       if (contents && !contents.endsWith('\n'))
@@ -52,6 +63,7 @@ export class VoteStore {
         if (this.votes.has(key))
           throw new Error('Duplicate vote ledger record');
         this.votes.set(key, record.choice);
+        this.counts[record.choice] += 1;
       }
     }
 
@@ -66,25 +78,42 @@ export class VoteStore {
   }
 
   record(marketId, voterKey, choice) {
+    if (this.failed || this.fileDescriptor === null)
+      throw new Error('Vote storage unavailable');
     const key = `${marketId}\0${voterKey}`;
     if (this.votes.has(key)) return false;
     const record = { choice, createdAt: Date.now(), marketId, voterKey };
     assertRecord(record);
-    const line = `${JSON.stringify(record)}\n`;
-    writeSync(this.fileDescriptor, line, null, 'utf8');
-    fsyncSync(this.fileDescriptor);
+    const line = Buffer.from(`${JSON.stringify(record)}\n`, 'utf8');
+    if (this.byteLength + line.length > this.maxBytes)
+      throw new Error('Vote ledger capacity reached');
+    try {
+      let offset = 0;
+      while (offset < line.length) {
+        const written = writeSync(
+          this.fileDescriptor,
+          line,
+          offset,
+          line.length - offset,
+        );
+        if (written < 1) throw new Error('Incomplete ledger write');
+        offset += written;
+      }
+      fsyncSync(this.fileDescriptor);
+    } catch {
+      // An uncertain append must never be followed by another write.
+      this.failed = true;
+      throw new Error('Vote storage unavailable');
+    }
+    this.byteLength += line.length;
     this.votes.set(key, choice);
+    this.counts[choice] += 1;
     return true;
   }
 
   summary(marketId, voterKey) {
-    let yes = 0;
-    let no = 0;
-    for (const [key, choice] of this.votes) {
-      if (!key.startsWith(`${marketId}\0`)) continue;
-      if (choice === 'yes') yes += 1;
-      if (choice === 'no') no += 1;
-    }
+    if (marketId !== ACTIVE_MARKET_ID) throw new Error('Unknown market');
+    const { yes, no } = this.counts;
     const total = yes + no;
     const choice = this.votes.get(`${marketId}\0${voterKey}`) ?? null;
     const yesPercent = total === 0 ? 50 : Math.round((yes / total) * 100);

@@ -36,6 +36,7 @@ const assets = new Map([
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/markets.js', ['markets.js', 'text/javascript; charset=utf-8']],
+  ['/market-list.js', ['market-list.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/favicon.svg', ['favicon.svg', 'image/svg+xml']],
   ['/marianne.png', ['marianne.png', 'image/png']],
@@ -59,6 +60,15 @@ assets.set('/assets/v4/styles.css', ['styles.css', 'text/css; charset=utf-8']);
 assets.set('/assets/v5/styles.css', ['styles.css', 'text/css; charset=utf-8']);
 assets.set('/assets/v6/styles.css', ['styles.css', 'text/css; charset=utf-8']);
 assets.set('/assets/v7/styles.css', ['styles.css', 'text/css; charset=utf-8']);
+assets.set('/assets/v2/market-list.js', assets.get('/market-list.js'));
+for (const path of [
+  '/app.js',
+  '/markets.js',
+  '/market-list.js',
+  '/styles.css',
+]) {
+  assets.set('/assets/v8' + path, assets.get(path));
+}
 for (const [path, asset] of assets) {
   let body = readFileSync(join(root, 'public', asset[0]));
   if (asset[1].startsWith('text/html')) {

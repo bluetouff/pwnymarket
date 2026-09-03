@@ -1,4 +1,5 @@
 import { MARKETS } from './markets.js';
+import { getMarketPage } from './market-list.js';
 
 const summaries = new Map(
   MARKETS.map((market) => [
@@ -10,6 +11,7 @@ const ballots = new Map(MARKETS.map((market) => [market.id, []]));
 const grid = document.querySelector('#market-grid');
 const filterButtons = [...document.querySelectorAll('[data-filter]')];
 let filter = 'Tous';
+let currentPage = 1;
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -20,6 +22,7 @@ function element(tag, className, text) {
 
 for (const market of MARKETS) {
   const card = element('article', 'market-card');
+  card.hidden = true;
   card.dataset.market = market.id;
   card.dataset.category = market.category;
   const head = element('div', 'card-head');
@@ -227,32 +230,87 @@ async function load() {
   }
 }
 
-function filterMarkets() {
-  const query = document
-    .querySelector('#market-search')
-    .value.trim()
-    .toLocaleLowerCase('fr');
-  let count = 0;
-  for (const card of grid.children) {
-    const matches =
-      (filter === 'Tous' || card.dataset.category === filter) &&
-      card.textContent.toLocaleLowerCase('fr').includes(query);
-    card.hidden = !matches;
-    if (matches) count++;
-  }
-  document.querySelector('#empty-markets').hidden = count !== 0;
+const listHeading = document.querySelector('#markets h2');
+listHeading.tabIndex = -1;
+const results = element('p', 'market-results');
+results.id = 'market-results';
+results.setAttribute('role', 'status');
+results.setAttribute('aria-live', 'polite');
+results.setAttribute('aria-atomic', 'true');
+grid.before(results);
+const pagination = element('nav', 'market-pagination');
+pagination.setAttribute('aria-label', 'Pages des marchés');
+const previousPage = element('button', 'page-button', '← Précédente');
+const nextPage = element('button', 'page-button', 'Suivante →');
+const pageNumbers = element('div', 'page-numbers');
+for (const button of [previousPage, nextPage]) {
+  button.type = 'button';
+  button.setAttribute('aria-controls', 'market-grid');
 }
+pagination.append(previousPage, pageNumbers, nextPage);
+grid.after(pagination);
+document.querySelector('.market-count').textContent =
+  MARKETS.length + ' marchés · 0 expert';
+
+function changePage(page) {
+  currentPage = page;
+  filterMarkets();
+  listHeading.focus();
+}
+
+function filterMarkets() {
+  const view = getMarketPage(MARKETS, {
+    category: filter,
+    query: document.querySelector('#market-search').value,
+    page: currentPage,
+  });
+  currentPage = view.page;
+  const visible = new Set(view.items.map((market) => market.id));
+  for (const card of grid.children)
+    card.hidden = !visible.has(card.dataset.market);
+  document.querySelector('#empty-markets').hidden = view.total !== 0;
+  results.textContent = view.total
+    ? view.from +
+      ' à ' +
+      view.to +
+      ' sur ' +
+      view.total +
+      (view.total > 1 ? ' marchés · Page ' : ' marché · Page ') +
+      view.page +
+      ' sur ' +
+      view.totalPages
+    : '0 marché trouvé';
+  pagination.hidden = view.totalPages < 2;
+  previousPage.disabled = view.page === 1;
+  nextPage.disabled = view.page === view.totalPages;
+  const buttons = [];
+  for (let page = 1; page <= view.totalPages; page++) {
+    const button = element('button', 'page-button page-number', String(page));
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Page ' + page);
+    button.setAttribute('aria-controls', 'market-grid');
+    if (page === view.page) button.setAttribute('aria-current', 'page');
+    button.addEventListener('click', () => changePage(page));
+    buttons.push(button);
+  }
+  pageNumbers.replaceChildren(...buttons);
+}
+
+previousPage.addEventListener('click', () => changePage(currentPage - 1));
+nextPage.addEventListener('click', () => changePage(currentPage + 1));
 for (const button of filterButtons) {
   button.addEventListener('click', () => {
     filter = button.dataset.filter;
+    currentPage = 1;
     for (const item of filterButtons)
       item.setAttribute('aria-pressed', String(item === button));
     filterMarkets();
   });
 }
-document
-  .querySelector('#market-search')
-  .addEventListener('input', filterMarkets);
+document.querySelector('#market-search').addEventListener('input', () => {
+  currentPage = 1;
+  filterMarkets();
+});
 if (document.modelContext?.registerTool) {
   document.modelContext.registerTool({
     annotations: {
@@ -277,4 +335,5 @@ if (document.modelContext?.registerTool) {
   });
 }
 for (const market of MARKETS) render(market.id);
+filterMarkets();
 void load();

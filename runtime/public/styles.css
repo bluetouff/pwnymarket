@@ -708,6 +708,55 @@ progress::-moz-progress-bar {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 17px;
 }
+.market-results {
+  margin: 0 0 16px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.market-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 26px;
+}
+.page-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.page-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: white;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 650;
+}
+.page-button:hover:not(:disabled) {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.page-button[aria-current='page'] {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: white;
+  box-shadow: inset 0 -3px var(--red);
+}
+.page-button[aria-current='page']:hover {
+  color: white;
+}
+@media (max-width: 540px) {
+  .page-numbers {
+    order: -1;
+    flex-basis: 100%;
+  }
+}
 .market-card {
   display: flex;
   flex-direction: column;

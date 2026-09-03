@@ -229,7 +229,7 @@ void test('privacy is short visitor copy and every public footer credits the cre
     'width: 100%',
     'text-align: center',
     'color: var(--blue)',
-    'font-size: 16px',
+    'font-size: 14px',
     'font-weight: 700',
   ])
     assert.ok(credit.includes(rule), rule);

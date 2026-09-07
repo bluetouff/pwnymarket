@@ -4,8 +4,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
-    <meta name="robots" content="noindex" />
-    <title>CAC 404 · Page introuvable · PwnyMarket.fr</title>
+    <meta name="theme-color" content="#122b64" />
+    <title><!-- PAGE_TITLE --></title>
+    <meta name="description" content="<!-- PAGE_DESCRIPTION -->" />
+    <link rel="canonical" href="<!-- PAGE_URL -->" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="<!-- PAGE_TITLE -->" />
+    <meta property="og:description" content="<!-- PAGE_DESCRIPTION -->" />
+    <meta property="og:url" content="<!-- PAGE_URL -->" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="<!-- PAGE_TITLE -->" />
+    <meta name="twitter:description" content="<!-- PAGE_DESCRIPTION -->" />
+    <meta name="twitter:creator" content="@bluetouff" />
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -14,8 +24,10 @@
     />
     <link rel="icon" href="/marianne.png" type="image/png" />
     <link rel="stylesheet" href="/assets/v9/styles.css" />
+    <script type="module" src="/assets/v9/app.js"></script>
   </head>
   <body>
+    <a class="skip" href="#market-title">Aller au marché</a>
     <header class="topbar">
       <a class="brand" href="/" aria-label="PwnyMarket.fr, accueil"
         ><img
@@ -29,32 +41,23 @@
           ><small>LA BOURSE DU SEUM ADMINISTRATIF</small></strong
         ></a
       >
+      <nav aria-label="Navigation principale">
+        <a href="/#markets">Les marchés</a
+        ><a href="/archives">Marchés achevés</a
+        ><a href="/about">Le grand n’importe quoi</a>
+      </nav>
       <span class="zero">0 € réel</span>
     </header>
     <!-- SHARE_LINKS -->
-    <main class="error-page">
-      <p class="eyebrow">CAC 404 · Suspension de cotation</p>
-      <p class="error-code" aria-label="Erreur 404">
-        <span>4</span><span>0</span><span>4</span>
-      </p>
-      <h1>Cette page a pris la fuite.</h1>
-      <p>
-        Le serveur a classé votre demande dans un dossier introuvable.<br />Une
-        commission cherche actuellement le dossier de la commission.
-      </p>
-      <nav class="archive-jump" aria-label="Retrouver le site">
-        <a href="/">Retour aux marchés ↗</a
-        ><a href="/archives">Consulter les archives ↗</a>
-      </nav>
-    </main>
+    <main class="market-page"><!-- MARKET_CONTENT --></main>
     <footer class="site-footer">
       <div>
         <strong>PwnyMarket<span class="brand-domain">.fr</span></strong>
       </div>
       <nav aria-label="Informations">
-        <a href="/feed.xml">Bulletin du seum · RSS</a>
-        <a href="/archives">Marchés achevés</a><a href="/about">À propos</a
-        ><a href="/privacy">Confidentialité</a>
+        <a href="/">Les marchés</a><a href="/archives">Marchés achevés</a
+        ><a href="/about">À propos</a><a href="/privacy">Confidentialité</a
+        ><a href="/feed.xml">Bulletin du seum · RSS</a>
       </nav>
       <p class="footer-credit">
         powered by <a href="https://x.com/bluetouff">@bluetouff</a> -

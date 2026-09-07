@@ -38,7 +38,8 @@ body {
   margin: 0;
 }
 button,
-input {
+input,
+select {
   font: inherit;
 }
 button,
@@ -65,6 +66,10 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible {
   outline: 3px solid #e33845;
+  outline-offset: 4px;
+}
+select:focus-visible {
+  outline: 3px solid var(--red);
   outline-offset: 4px;
 }
 button[hidden],
@@ -133,7 +138,7 @@ button[hidden],
 }
 .brand small {
   display: block;
-  font-size: 7px;
+  font-size: 0.75rem;
   letter-spacing: 1.25px;
   font-weight: 700;
   margin-top: 5px;
@@ -142,7 +147,7 @@ button[hidden],
   display: flex;
   align-items: center;
   gap: 24px;
-  font-size: 12px;
+  font-size: 0.8125rem;
   font-weight: 650;
 }
 .topbar nav a {
@@ -158,7 +163,7 @@ button[hidden],
   padding: 9px 12px;
   color: var(--blue);
   white-space: nowrap;
-  font-size: 12px;
+  font-size: 0.8125rem;
   font-weight: 750;
 }
 .github {
@@ -178,7 +183,7 @@ button[hidden],
 .share-bar p {
   margin: 0;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -242,7 +247,7 @@ button[hidden],
   border-radius: 6px;
   background: var(--ink);
   color: #fff;
-  font-size: 11px;
+  font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.4;
   white-space: nowrap;
@@ -269,13 +274,13 @@ button[hidden],
   gap: 32px;
   align-items: center;
   padding: 11px max(24px, calc((100% - 1280px) /2));
-  font-size: 10px;
+  font-size: 0.75rem;
   white-space: nowrap;
   overflow: auto;
 }
 .ticker-index {
   font-weight: 700;
-  font-size: 11px;
+  font-size: 0.75rem;
   letter-spacing: 1px;
   color: white;
 }
@@ -288,7 +293,7 @@ button[hidden],
 }
 .ticker small {
   margin-left: auto;
-  font-size: 9px;
+  font-size: 0.75rem;
   color: #b9c5df;
 }
 main {
@@ -306,7 +311,7 @@ main {
 .eyebrow {
   margin: 0 0 13px;
   color: var(--blue);
-  font-size: 10px;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 1.45px;
   text-transform: uppercase;
@@ -346,7 +351,7 @@ main {
   color: white;
   border-radius: 8px;
   padding: 14px 19px;
-  font-size: 12px;
+  font-size: 0.8125rem;
   font-weight: 750;
   box-shadow: 0 4px 8px #164bdf20;
 }
@@ -354,7 +359,7 @@ main {
   padding-left: 14px;
 }
 .hero-links > span {
-  font-size: 10px;
+  font-size: 0.75rem;
   line-height: 1.6;
   color: var(--muted);
 }
@@ -379,7 +384,7 @@ main {
 }
 .hero-seal > span {
   display: block;
-  font-size: 9px;
+  font-size: 0.75rem;
   color: var(--muted);
   margin-top: 9px;
 }
@@ -388,7 +393,7 @@ main {
   align-items: center;
   flex-wrap: wrap;
   gap: 9px;
-  font-size: 10px;
+  font-size: 0.75rem;
   color: #606a7e;
   padding: 13px 0 18px;
 }
@@ -397,7 +402,7 @@ main {
   color: var(--blue);
 }
 .parody-tag {
-  font-size: 9px;
+  font-size: 0.75rem;
   letter-spacing: 1px;
   color: var(--red);
   font-weight: 800;
@@ -423,7 +428,7 @@ main {
   align-items: center;
   flex-wrap: wrap;
   gap: 13px;
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 .category {
@@ -432,7 +437,7 @@ main {
   color: var(--blue);
   border-radius: 5px;
   padding: 5px 7px;
-  font-size: 9px;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.6px;
 }
@@ -445,7 +450,7 @@ main {
 }
 .muted {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 0.8125rem;
   line-height: 1.65;
 }
 .chart {
@@ -461,7 +466,7 @@ main {
   justify-content: space-between;
 }
 .chart-head small {
-  font-size: 8px;
+  font-size: 0.75rem;
   letter-spacing: 1.2px;
   color: var(--muted);
   font-weight: 750;
@@ -473,14 +478,14 @@ main {
   letter-spacing: -1.5px;
 }
 .chart-head p {
-  font-size: 9px;
+  font-size: 0.75rem;
   line-height: 1.7;
   text-align: right;
   color: var(--muted);
 }
 .chart-head b {
   color: var(--ink);
-  font-size: 12px;
+  font-size: 0.8125rem;
 }
 .chart svg {
   display: block;
@@ -502,7 +507,7 @@ main {
   justify-content: space-between;
   gap: 10px;
   margin-top: 12px;
-  font-size: 8px;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 .ballot {
@@ -523,7 +528,7 @@ main {
   border: 1px solid var(--border);
   border-radius: 5px;
   padding: 4px 7px;
-  font-size: 10px;
+  font-size: 0.75rem;
 }
 .choices {
   display: grid;
@@ -541,7 +546,7 @@ main {
   padding: 13px 12px;
   border: 1px solid;
   border-radius: 7px;
-  font-size: 10px;
+  font-size: 0.75rem;
   font-weight: 800;
   transition:
     background 0.15s,
@@ -570,7 +575,7 @@ main {
   box-shadow: inset 0 0 0 1px var(--no);
 }
 .tally {
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 progress {
@@ -598,14 +603,14 @@ progress::-moz-progress-bar {
   border: 1px solid #122b64;
   background: #122b64;
   color: white;
-  font-size: 11px;
+  font-size: 0.75rem;
   font-weight: 750;
   padding: 12px 8px;
   border-radius: 7px;
 }
 .status {
   min-height: 30px;
-  font-size: 9px;
+  font-size: 0.75rem;
   line-height: 1.55;
   color: var(--muted);
 }
@@ -621,18 +626,18 @@ progress::-moz-progress-bar {
   color: var(--blue);
 }
 .oracle small {
-  font-size: 7px;
+  font-size: 0.75rem;
   font-weight: 750;
   letter-spacing: 0.75px;
   color: var(--muted);
 }
 .oracle strong {
   display: block;
-  font-size: 10px;
+  font-size: 0.75rem;
   margin: 4px 0;
 }
 .oracle p {
-  font-size: 9px;
+  font-size: 0.75rem;
   line-height: 1.6;
   color: var(--muted);
   margin: 0;
@@ -660,7 +665,7 @@ progress::-moz-progress-bar {
   color: var(--red);
 }
 .market-count {
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted);
   white-space: nowrap;
 }
@@ -681,7 +686,7 @@ progress::-moz-progress-bar {
   border-radius: 6px;
   background: white;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 0.75rem;
   font-weight: 650;
   padding: 9px 11px;
 }
@@ -700,7 +705,7 @@ progress::-moz-progress-bar {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 9px 11px;
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--ink);
 }
 .cards {
@@ -710,7 +715,7 @@ progress::-moz-progress-bar {
 }
 .market-results {
   margin: 0 0 16px;
-  font-size: 11px;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 .market-pagination {
@@ -735,7 +740,7 @@ progress::-moz-progress-bar {
   border-radius: 9px;
   background: white;
   color: var(--ink);
-  font-size: 12px;
+  font-size: 0.8125rem;
   font-weight: 650;
 }
 .page-button:hover:not(:disabled) {
@@ -787,7 +792,7 @@ progress::-moz-progress-bar {
   border-radius: 9px;
   background: #eef2fb;
   color: var(--blue);
-  font-size: 10px;
+  font-size: 0.75rem;
   font-weight: 850;
 }
 .market-card:nth-child(3n + 2) .service-symbol {
@@ -796,14 +801,14 @@ progress::-moz-progress-bar {
 }
 .card-head small {
   display: block;
-  font-size: 8px;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.7px;
 }
 .card-head p {
-  font-size: 10px;
+  font-size: 0.75rem;
   margin: 4px 0 0;
   font-weight: 700;
 }
@@ -815,7 +820,7 @@ progress::-moz-progress-bar {
   min-height: 92px;
 }
 .card-detail {
-  font-size: 10px;
+  font-size: 0.75rem;
   line-height: 1.65;
   color: var(--muted);
   margin: 0 0 8px;
@@ -836,7 +841,7 @@ progress::-moz-progress-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 8px;
+  font-size: 0.75rem;
   gap: 8px;
 }
 .fake-volume {
@@ -844,17 +849,17 @@ progress::-moz-progress-bar {
 }
 .market-card .submit {
   margin-top: 10px;
-  font-size: 10px;
+  font-size: 0.75rem;
 }
 .market-card .status {
   min-height: 14px;
   margin: 8px 0;
-  font-size: 8px;
+  font-size: 0.75rem;
 }
 .card-oracle {
   padding-top: 11px;
   border-top: 1px solid #edf0f6;
-  font-size: 9px;
+  font-size: 0.75rem;
   color: var(--muted);
   line-height: 1.5;
 }
@@ -877,7 +882,7 @@ progress::-moz-progress-bar {
   color: var(--blue);
 }
 .bottom-banner .eyebrow {
-  font-size: 8px;
+  font-size: 0.75rem;
   margin-bottom: 7px;
 }
 .bottom-banner h2 {
@@ -888,11 +893,11 @@ progress::-moz-progress-bar {
 .bottom-banner p:last-child {
   margin: 7px 0 0;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 0.75rem;
 }
 .bottom-banner > a {
   margin-left: auto;
-  font-size: 10px;
+  font-size: 0.75rem;
   font-weight: 650;
   white-space: nowrap;
 }
@@ -912,14 +917,14 @@ progress::-moz-progress-bar {
   letter-spacing: -0.4px;
 }
 .site-footer strong span:not(.brand-domain) {
-  font-size: 9px;
+  font-size: 0.75rem;
   font-weight: 450;
   margin-left: 9px;
   color: var(--muted);
   letter-spacing: 0;
 }
 .site-footer p {
-  font-size: 9px;
+  font-size: 0.75rem;
   color: var(--muted);
   line-height: 1.6;
   margin: 8px 0 0;
@@ -928,7 +933,7 @@ progress::-moz-progress-bar {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 .site-footer .footer-credit {
@@ -1006,7 +1011,7 @@ progress::-moz-progress-bar {
   margin: 32px 0;
   max-width: 940px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 0.8125rem;
   line-height: 1.75;
 }
 .archive-note p {
@@ -1037,7 +1042,7 @@ progress::-moz-progress-bar {
 }
 .archive-date {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 0.75rem;
   margin: 0 0 10px;
 }
 .archive-info h3 {
@@ -1062,7 +1067,7 @@ progress::-moz-progress-bar {
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
-  font-size: 12px;
+  font-size: 0.8125rem;
   color: var(--blue);
 }
 .archive-sources a {
@@ -1079,7 +1084,7 @@ progress::-moz-progress-bar {
 .archive-volume small {
   display: block;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 0.75rem;
   line-height: 1.6;
 }
 .archive-volume strong {
@@ -1120,7 +1125,7 @@ progress::-moz-progress-bar {
 .prose table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 0.8125rem;
   overflow-wrap: anywhere;
 }
 .prose th,
@@ -1130,7 +1135,7 @@ progress::-moz-progress-bar {
   text-align: left;
 }
 .prose .eyebrow {
-  font-size: 10px;
+  font-size: 0.75rem;
 }
 @media (min-width: 1450px) {
   .topbar,
@@ -1183,7 +1188,7 @@ progress::-moz-progress-bar {
     font-size: 21px;
   }
   .brand small {
-    font-size: 6px;
+    font-size: 0.75rem;
     letter-spacing: 0.8px;
   }
   .logo {
@@ -1197,7 +1202,7 @@ progress::-moz-progress-bar {
     display: none;
   }
   .zero {
-    font-size: 10px;
+    font-size: 0.75rem;
     padding: 8px;
   }
   .ticker {
@@ -1209,7 +1214,7 @@ progress::-moz-progress-bar {
     gap: 14px;
   }
   .ticker-index {
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   main {
     padding: 30px 16px 36px;
@@ -1223,11 +1228,11 @@ progress::-moz-progress-bar {
     letter-spacing: -1.3px;
   }
   .intro .eyebrow {
-    font-size: 8px;
+    font-size: 0.75rem;
     line-height: 1.7;
   }
   .intro-copy {
-    font-size: 12px;
+    font-size: 0.8125rem;
     margin: 17px 0;
   }
   .hero-seal {
@@ -1238,11 +1243,11 @@ progress::-moz-progress-bar {
     height: 115px;
   }
   .hero-seal strong {
-    font-size: 11px;
+    font-size: 0.75rem;
     letter-spacing: 2px;
   }
   .hero-seal > span {
-    font-size: 7px;
+    font-size: 0.75rem;
     line-height: 1.6;
   }
   .hero-links {
@@ -1250,10 +1255,10 @@ progress::-moz-progress-bar {
   }
   .primary-link {
     padding: 12px;
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   .hero-links > span {
-    font-size: 8px;
+    font-size: 0.75rem;
   }
   .featured {
     grid-template-columns: 1fr;
@@ -1282,16 +1287,16 @@ progress::-moz-progress-bar {
     font-size: 25px;
   }
   .market-count {
-    font-size: 8px;
+    font-size: 0.75rem;
   }
   .section-heading .eyebrow {
-    font-size: 8px;
+    font-size: 0.75rem;
   }
   .filters {
     gap: 6px;
   }
   .filters button {
-    font-size: 9px;
+    font-size: 0.75rem;
     padding: 8px;
   }
   .search,
@@ -1309,7 +1314,7 @@ progress::-moz-progress-bar {
     min-height: 108px;
   }
   .card-head p {
-    font-size: 9px;
+    font-size: 0.75rem;
   }
   .bottom-banner {
     padding: 20px;
@@ -1336,7 +1341,7 @@ progress::-moz-progress-bar {
     margin: 5px 0 0;
   }
   .disclaimer {
-    font-size: 9px;
+    font-size: 0.75rem;
     line-height: 1.7;
   }
   .disclaimer > a {
@@ -1413,19 +1418,19 @@ progress::-moz-progress-bar {
     padding: 22px;
   }
   .card-head p {
-    font-size: 11px;
+    font-size: 0.75rem;
   }
   .market-card .tally {
-    font-size: 9px;
+    font-size: 0.75rem;
   }
   .market-card .status {
-    font-size: 9px;
+    font-size: 0.75rem;
   }
   .card-oracle {
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   .chart-caption {
-    font-size: 7px;
+    font-size: 0.75rem;
   }
   .section-heading {
     align-items: flex-start;
@@ -1433,7 +1438,7 @@ progress::-moz-progress-bar {
     gap: 9px;
   }
   .hero-links > span {
-    font-size: 9px;
+    font-size: 0.75rem;
   }
 }
 @media (max-width: 420px) {
@@ -1442,6 +1447,372 @@ progress::-moz-progress-bar {
   }
   .share-bar p {
     display: none;
+  }
+}
+.topbar nav,
+.filters button,
+.choice,
+.market-card .submit,
+.submit,
+.card-head p,
+.oracle strong,
+.site-footer nav,
+.primary-link,
+.page-button {
+  font-size: 0.875rem;
+}
+.filters button,
+.submit {
+  min-height: 44px;
+}
+.search input {
+  min-height: 44px;
+  font-size: 1rem;
+  width: 270px;
+}
+.card-detail,
+.intro-copy,
+.prose,
+.archive-intro > p:not(.eyebrow) {
+  font-size: 1rem;
+}
+.card-detail,
+.market-card h3 {
+  min-height: 0;
+}
+.market-card h3,
+.market-dossier h1,
+.daily-market h2,
+.pulse a {
+  overflow-wrap: anywhere;
+}
+.market-card .tally {
+  flex-wrap: wrap;
+}
+.market-card .choices {
+  margin-top: auto;
+  padding-top: 16px;
+}
+.market-state {
+  align-self: flex-start;
+  display: inline-block;
+  color: var(--blue);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin: 14px 0 0;
+}
+.market-state[data-state='closed'],
+.market-state[data-state='resolved'] {
+  color: var(--red);
+}
+.denial,
+.ranking-note {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+}
+.denial {
+  margin: 8px 0 14px;
+}
+.card-link,
+.text-link {
+  color: var(--blue);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.card-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 8px;
+}
+.daily-market {
+  border-top: 3px solid var(--blue);
+}
+.daily-market .market-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.daily-market .market-main h2 {
+  font-family: 'Manrope', 'Helvetica Neue', sans-serif;
+  font-size: clamp(1.4rem, 2.3vw, 2rem);
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+.daily-oracle {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 22px 0 0;
+}
+.daily-detail {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.75;
+  margin-bottom: 26px;
+}
+.daily-footnote {
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: 28px;
+}
+.ballot-head h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+.pulse {
+  display: grid;
+  grid-template-columns: 0.65fr 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--border);
+}
+.pulse > div {
+  padding: 0 20px;
+  border-left: 2px solid var(--border);
+  min-width: 0;
+}
+.pulse > div:first-child {
+  border-color: var(--blue);
+}
+.pulse > div:last-child {
+  border-color: var(--red);
+}
+.pulse span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.pulse strong {
+  font-family: 'Manrope', sans-serif;
+  font-size: 2rem;
+  color: var(--blue);
+  font-weight: 500;
+}
+.pulse a {
+  font-size: 0.875rem;
+  font-weight: 650;
+  line-height: 1.6;
+}
+.pulse p {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+.market-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+.market-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+.market-controls select {
+  max-width: 100%;
+  min-height: 44px;
+  font-size: 1rem;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--ink);
+}
+.crisis-button {
+  min-height: 46px;
+  margin-left: auto;
+  padding: 12px 18px;
+  border: 1px solid #e9bcc5;
+  border-radius: 9px;
+  background: #fff0f3;
+  color: #a62338;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.crisis-button:hover:not(:disabled) {
+  border-color: var(--red);
+  background: #ffe5eb;
+}
+.crisis-button span {
+  margin-right: 8px;
+}
+.ranking-note {
+  margin: 16px 0 22px;
+  max-width: 920px;
+}
+.market-page {
+  padding-top: 30px;
+}
+.back-link {
+  display: inline-block;
+  padding: 12px 0;
+  margin-bottom: 20px;
+  color: var(--blue);
+  font-size: 0.875rem;
+}
+.market-dossier h1 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.035em;
+}
+.market-rules {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  margin: 40px 0;
+}
+.market-rules h2 {
+  font-size: 1.3rem;
+  letter-spacing: -0.03em;
+}
+.market-rules p:not(.eyebrow) {
+  font-size: 1rem;
+  line-height: 1.8;
+}
+.market-rules a {
+  overflow-wrap: anywhere;
+}
+.resolution-verdict {
+  font-weight: 750;
+  color: var(--red);
+}
+.minitel-exit {
+  position: sticky;
+  bottom: 12px;
+  display: block;
+  margin: 16px auto;
+  padding: 14px 20px;
+  border: 2px solid #82ff9c;
+  background: #06100b;
+  color: #82ff9c;
+  font: 700 1rem monospace;
+  z-index: 30;
+  max-width: calc(100% - 24px);
+}
+.minitel-mode {
+  --bg: #06100b;
+  --card: #071b10;
+  --ink: #acffbc;
+  --muted: #84c991;
+  --border: #3e6b49;
+  --blue: #90ffa8;
+  --red: #ffc777;
+  --no: #ffc777;
+  background: var(--bg);
+  color: var(--ink);
+}
+.minitel-mode
+  :is(
+    h1,
+    h2,
+    h3,
+    strong,
+    p,
+    a,
+    span,
+    button,
+    input,
+    select,
+    small,
+    label,
+    time
+  ) {
+  font-family: ui-monospace, monospace;
+}
+.minitel-mode
+  :is(
+    .topbar,
+    .market-card,
+    .featured,
+    .share-link,
+    .filters button,
+    .page-button,
+    .crisis-button,
+    .choice,
+    .zero,
+    .submit,
+    .category,
+    .service-symbol,
+    .ticker
+  ) {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--border);
+  box-shadow: none;
+}
+.minitel-mode .choice.selected,
+.minitel-mode .page-button[aria-current='page'],
+.minitel-mode .filters button[aria-pressed='true'] {
+  border-color: var(--blue);
+  box-shadow: inset 0 0 0 1px var(--blue);
+}
+@media (max-width: 1200px) {
+  .topbar {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .topbar nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+  .brand small {
+    display: none;
+  }
+  .crisis-button {
+    margin-left: 0;
+  }
+}
+@media (max-width: 760px) {
+  .pulse,
+  .market-rules {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .market-controls label {
+    flex: 1 1 220px;
+  }
+  .market-controls select {
+    width: 100%;
+  }
+  .crisis-button {
+    width: 100%;
+  }
+  .search {
+    width: 100%;
+  }
+  .search input {
+    width: 100%;
+  }
+  .hero-links {
+    flex-wrap: wrap;
+  }
+  .market-card h3 {
+    min-height: 0;
+  }
+}
+@media (max-width: 600px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+  .share-bar {
+    flex-wrap: wrap;
   }
 }
 @media (prefers-reduced-motion: reduce) {

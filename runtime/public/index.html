@@ -49,9 +49,15 @@
       content="PwnyMarket.fr, Marianne au nez rouge et le slogan Liberté. Égalité. Données éparpillées."
     />
     <link rel="canonical" href="https://pwnymarket.fr/" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Le Bulletin officiel du seum"
+      href="/feed.xml"
+    />
     <link rel="icon" href="/marianne.png" type="image/png" />
-    <link rel="stylesheet" href="/assets/v8/styles.css" />
-    <script type="module" src="/assets/v8/app.js"></script>
+    <link rel="stylesheet" href="/assets/v9/styles.css" />
+    <script type="module" src="/assets/v9/app.js"></script>
   </head>
   <body>
     <a class="skip" href="#markets">Aller aux marchés</a>
@@ -129,85 +135,22 @@
         Votes réels. Aucune prédiction de piratage, aucun gain.
         <a href="/about">Lire les petites lignes ↗</a>
       </div>
-      <section class="featured" aria-labelledby="market-title">
-        <article class="market-main">
-          <div class="meta">
-            <span class="category">À LA UNE · CYBER-LOTO</span
-            ><span>Le marché historique</span>
-          </div>
-          <h2 id="market-title">
-            Impots.gouv.fr sera-t-il cité dans le prochain communiqué officiel
-            parlant d’une fuite de données ?
-          </h2>
-          <p class="muted">
-            Opinion hautement spéculative. Aucune information privilégiée, même
-            chez l’oracle.
-          </p>
-          <div class="chart">
-            <div class="chart-head">
-              <div>
-                <small>LE OUI DANS LES VOTES</small
-                ><strong id="chart-yes">…</strong>
-              </div>
-              <p>Volume fictif<br /><b>12 345 PNY</b></p>
-            </div>
-            <svg
-              viewBox="0 0 640 115"
-              role="img"
-              aria-label="Courbe purement décorative, sans historique de votes"
-            >
-              <path
-                class="area"
-                d="M0 98L48 88 79 92 117 64 150 75 197 62 225 73 260 42 295 51 331 39 361 57 402 24 440 35 478 18 510 34 550 13 590 25 640 6V115H0Z"
-              />
-              <path
-                class="line"
-                d="M0 98L48 88 79 92 117 64 150 75 197 62 225 73 260 42 295 51 331 39 361 57 402 24 440 35 478 18 510 34 550 13 590 25 640 6"
-              />
-            </svg>
-            <div class="chart-caption">
-              <span>Avant le café</span
-              ><span>Courbe décorative, évidemment</span
-              ><span>Après le déni</span>
-            </div>
-          </div>
-        </article>
-        <aside
-          class="ballot"
-          data-market="impots-next-official-notice"
-          aria-labelledby="ballot-title"
-        >
-          <div class="ballot-head">
-            <h3 id="ballot-title">Placer un non-pari</h3>
-            <span>0,00 €</span>
-          </div>
-          <p class="muted">Votre capital : une conviction discutable.</p>
-          <div class="choices">
-            <button class="choice yes" data-choice="yes" type="button" disabled>
-              <span>YES · OUI</span><strong data-quote="yes">…</strong></button
-            ><button class="choice no" data-choice="no" type="button" disabled>
-              <span>NO · NON</span><strong data-quote="no">…</strong>
-            </button>
-          </div>
-          <div class="tally">
-            <span data-total>Chargement des votes…</span
-            ><progress max="100" value="50">50 %</progress>
-          </div>
-          <button class="submit" type="button" disabled>
-            Choisir son camp
-          </button>
-          <p class="status" aria-live="polite">
-            Une voix par IP et par marché.
-          </p>
-          <div class="oracle">
-            <span aria-hidden="true">✳</span>
-            <div>
-              <small>ORACLE AGRÉÉ PAR LUI-MÊME</small
-              ><strong>Screenshot Twitter d’un stagiaire</strong>
-              <p>Plan B : pile ou face, pièce du Trésor public.</p>
-            </div>
-          </div>
-        </aside>
+      <!-- DAILY_MARKET -->
+      <section class="pulse" aria-label="La température du guichet">
+        <div>
+          <span>Bulletins dans l’urne</span><strong id="pulse-total">…</strong>
+          <p>Capital cumulé : toujours 0 €.</p>
+        </div>
+        <div>
+          <span>Le peuple est divisé</span
+          ><a id="pulse-disputed">Dépouillement en cours…</a>
+          <p>Le marché le plus proche du 50 / 50.</p>
+        </div>
+        <div>
+          <span>Le grand consensus mou</span
+          ><a id="pulse-consensus">Dépouillement en cours…</a>
+          <p>Le marché dont les votes convergent le plus.</p>
+        </div>
       </section>
       <section id="markets" class="more">
         <div class="section-heading">
@@ -262,6 +205,38 @@
               maxlength="100"
           /></label>
         </div>
+        <div class="market-controls">
+          <label
+            >Trier les dossiers<select id="market-sort">
+              <option value="catalogue">Ordre du catalogue</option>
+              <option value="votes">Les plus votés</option>
+              <option value="disputed">Les plus disputés</option>
+              <option value="consensus">Le grand consensus mou</option>
+            </select></label
+          >
+          <label
+            >État du guichet<select id="market-status">
+              <option value="all">Tous les marchés</option>
+              <option value="open">Urnes ouvertes</option>
+              <option value="closed">Clos, résultat en attente</option>
+              <option value="resolved">Le réel a tranché</option>
+            </select></label
+          >
+          <button
+            class="crisis-button"
+            id="crisis-button"
+            type="button"
+            disabled
+          >
+            <span aria-hidden="true">✳</span> Déclencher une cellule de crise
+          </button>
+        </div>
+        <p class="ranking-note">
+          Classements « disputés » et « consensus » : dès 5 votes. Indice de
+          déni : 0 pour l’unanimité, 100 pour un partage égal. Les marchés sans
+          vote attendent leur première conviction.
+        </p>
+        <p id="crisis-status" class="sr-only" role="status"></p>
         <div id="market-grid" class="cards"></div>
         <p id="empty-markets" hidden>
           Aucun marché. Même le n’importe quoi a ses limites.
@@ -295,6 +270,7 @@
         </p>
       </div>
       <nav aria-label="Informations">
+        <a href="/feed.xml">Bulletin du seum · RSS</a>
         <a href="/archives">Marchés achevés</a><a href="/about">À propos</a
         ><a href="/privacy">Confidentialité</a
         ><a href="https://github.com/bluetouff/pwnymarket">Code source · MIT</a>

@@ -15,6 +15,10 @@ import {
 import { VoteStore } from './store.mjs';
 import { renderArchives } from './archive.mjs';
 import { renderShareLinks } from './share.mjs';
+import { CATALOGUE, MARKET_EVENTS } from './catalogue.mjs';
+import { renderDaily, renderMarketPage } from './market-page.mjs';
+import { renderFeed } from './feed.mjs';
+import { getDailyMarket } from './public/market-tools.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const socketPath = process.env.PWNYMARKET_SOCKET;
@@ -37,6 +41,7 @@ const assets = new Map([
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/markets.js', ['markets.js', 'text/javascript; charset=utf-8']],
   ['/market-list.js', ['market-list.js', 'text/javascript; charset=utf-8']],
+  ['/market-tools.js', ['market-tools.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/favicon.svg', ['favicon.svg', 'image/svg+xml']],
   ['/marianne.png', ['marianne.png', 'image/png']],
@@ -69,6 +74,21 @@ for (const path of [
 ]) {
   assets.set('/assets/v8' + path, assets.get(path));
 }
+for (const path of [
+  '/app.js',
+  '/markets.js',
+  '/market-list.js',
+  '/market-tools.js',
+  '/styles.css',
+]) {
+  assets.set('/assets/v9' + path, assets.get(path));
+}
+// Older HTML may still request modules from an earlier namespace.
+for (const version of ['v2', 'v8'])
+  assets.set(
+    '/assets/' + version + '/market-tools.js',
+    assets.get('/market-tools.js'),
+  );
 for (const [path, asset] of assets) {
   let body = readFileSync(join(root, 'public', asset[0]));
   if (asset[1].startsWith('text/html')) {
@@ -92,6 +112,16 @@ for (const [path, asset] of assets) {
 }
 
 const store = new VoteStore(ledgerPath);
+for (const market of CATALOGUE.values()) {
+  assets.set('/m/' + market.id, {
+    body: Buffer.from(renderMarketPage(market)),
+    type: 'text/html; charset=utf-8',
+  });
+}
+assets.set('/feed.xml', {
+  body: Buffer.from(renderFeed(CATALOGUE, MARKET_EVENTS)),
+  type: 'application/rss+xml; charset=utf-8',
+});
 const notFoundPage = Buffer.from(
   readFileSync(join(root, 'public', '404.html'), 'utf8').replace(
     '<!-- SHARE_LINKS -->',
@@ -171,7 +201,14 @@ const server = createServer(async (request, response) => {
           });
         markets[id] = store.summary(id, voterKey);
       }
-      return sendJson(response, 200, { markets });
+      const day = new Date().toISOString().slice(0, 10);
+      return sendJson(response, 200, {
+        markets,
+        catalogue: [...CATALOGUE.values()],
+        day,
+        dailyMarketId:
+          getDailyMarket([...CATALOGUE.values()], new Date(day))?.id || null,
+      });
     }
 
     if (url.pathname === '/api/votes' && request.method === 'GET') {
@@ -188,6 +225,8 @@ const server = createServer(async (request, response) => {
     }
 
     if (url.pathname === '/api/votes' && request.method === 'POST') {
+      if (url.search)
+        return sendJson(response, 400, { error: 'invalid_query' });
       if (!isSameOriginVoteRequest(request.headers, publicOrigin)) {
         return sendJson(response, 403, { error: 'cross_origin_request' });
       }
@@ -203,6 +242,13 @@ const server = createServer(async (request, response) => {
       const voterKey = identifyVoter(request, vote.marketId);
       if (!voterKey)
         return sendJson(response, 503, { error: 'vote_identity_unavailable' });
+      if (CATALOGUE.get(vote.marketId).status !== 'open') {
+        return sendJson(response, 409, {
+          ...store.summary(vote.marketId, voterKey),
+          accepted: false,
+          error: 'market_closed',
+        });
+      }
       const accepted = store.record(vote.marketId, voterKey, vote.choice);
       return sendJson(response, accepted ? 201 : 409, {
         ...store.summary(vote.marketId, voterKey),
@@ -228,7 +274,22 @@ const server = createServer(async (request, response) => {
         },
       );
     }
-    send(response, 200, request.method === 'HEAD' ? null : asset.body, {
+    let body = asset.body;
+    if (url.pathname === '/' || url.pathname === '/index.html') {
+      const now = new Date();
+      body = Buffer.from(
+        body
+          .toString('utf8')
+          .replace(
+            '<!-- DAILY_MARKET -->',
+            renderDaily(
+              getDailyMarket([...CATALOGUE.values()], now),
+              now.toISOString().slice(0, 10),
+            ),
+          ),
+      );
+    }
+    send(response, 200, request.method === 'HEAD' ? null : body, {
       'Cache-Control': asset.type.startsWith('text/html')
         ? 'no-cache'
         : 'public, max-age=3600',

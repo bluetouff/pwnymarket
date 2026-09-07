@@ -1,4 +1,5 @@
 import { renderShareIcon } from './share-icons.mjs';
+import { MARKETS } from './public/markets.js';
 
 const pages = new Map([
   ['/', 'PwnyMarket.fr · Liberté. Égalité. Données éparpillées.'],
@@ -7,6 +8,8 @@ const pages = new Map([
   ['/archives', 'Marchés achevés · PwnyMarket.fr'],
   ['/404', 'CAC 404 · Page introuvable · PwnyMarket.fr'],
 ]);
+for (const market of MARKETS)
+  pages.set('/m/' + market.id, market.title + ' · PwnyMarket.fr');
 
 function escapeAttribute(value) {
   return value.replace(/[&<>"']/g, (character) => {
@@ -20,7 +23,7 @@ function escapeAttribute(value) {
   });
 }
 
-// Only fixed public routes are shared. Never use the request URL, host, or state.
+// Only catalogue and fixed public routes are shared, using a fixed origin.
 export function renderShareLinks(path) {
   const route = path === '/index.html' ? '/' : path;
   const title = pages.get(route);
@@ -57,5 +60,5 @@ export function renderShareLinks(path) {
     )
     .join('');
   const mailto = `mailto:?subject=${encodedTitle}&body=${encodeURIComponent(title + '\r\n\r\n' + url)}`;
-  return `<aside class="share-bar" aria-label="Partager cette page"><p>Partager</p><nav class="share-links" aria-label="Liens de partage">${socialLinks}<a class="share-link share-email" href="${escapeAttribute(mailto)}" aria-label="Envoyer par email (ouvre votre messagerie)">${renderShareIcon('email')}<span class="share-tooltip" aria-hidden="true">Envoyer par email</span></a></nav></aside>`;
+  return `<aside id="partager" class="share-bar" aria-label="Partager cette page"><p>Partager</p><nav class="share-links" aria-label="Liens de partage">${socialLinks}<a class="share-link share-email" href="${escapeAttribute(mailto)}" aria-label="Envoyer par email (ouvre votre messagerie)">${renderShareIcon('email')}<span class="share-tooltip" aria-hidden="true">Envoyer par email</span></a></nav></aside>`;
 }

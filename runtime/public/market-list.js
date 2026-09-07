@@ -8,12 +8,13 @@ function searchText(value) {
 
 export function getMarketPage(
   markets,
-  { category = 'Tous', query = '', page = 1 } = {},
+  { category = 'Tous', query = '', page = 1, status = 'all' } = {},
 ) {
   const needle = searchText(query).trim();
   const matches = markets.filter(
     (market) =>
       (category === 'Tous' || market.category === category) &&
+      (status === 'all' || market.status === status) &&
       searchText(
         [
           market.title,

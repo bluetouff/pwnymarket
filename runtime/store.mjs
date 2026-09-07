@@ -12,6 +12,7 @@ import {
 import { dirname } from 'node:path';
 
 import { MARKET_IDS, VOTE_CHOICES } from './security.mjs';
+import { CATALOGUE } from './catalogue.mjs';
 
 const MAX_LEDGER_BYTES = 64 * 1024 * 1024;
 const VOTER_KEY_PATTERN = /^[a-f0-9]{64}$/;
@@ -31,7 +32,10 @@ function assertRecord(record) {
 }
 
 export class VoteStore {
-  constructor(filePath, { maxBytes = MAX_LEDGER_BYTES } = {}) {
+  constructor(
+    filePath,
+    { maxBytes = MAX_LEDGER_BYTES, catalogue = CATALOGUE } = {},
+  ) {
     if (!filePath) throw new Error('Vote ledger path is required');
     if (
       !Number.isSafeInteger(maxBytes) ||
@@ -41,6 +45,7 @@ export class VoteStore {
       throw new Error('Invalid vote ledger capacity');
     mkdirSync(dirname(filePath), { mode: 0o700, recursive: true });
     this.filePath = filePath;
+    this.catalogue = catalogue;
     this.votes = new Map();
     this.counts = new Map([...MARKET_IDS].map((id) => [id, { yes: 0, no: 0 }]));
     this.maxBytes = maxBytes;
@@ -79,6 +84,11 @@ export class VoteStore {
   record(marketId, voterKey, choice) {
     if (this.failed || this.fileDescriptor === null)
       throw new Error('Vote storage unavailable');
+    if (this.catalogue.get(marketId)?.status !== 'open') {
+      const error = new Error('Market is closed');
+      error.code = 'market_closed';
+      throw error;
+    }
     const key = `${marketId}\0${voterKey}`;
     if (this.votes.has(key)) return false;
     const record = { choice, createdAt: Date.now(), marketId, voterKey };
@@ -117,6 +127,7 @@ export class VoteStore {
     const choice = this.votes.get(`${marketId}\0${voterKey}`) ?? null;
     const yesPercent = total === 0 ? 50 : Math.round((yes / total) * 100);
     return {
+      status: this.catalogue.get(marketId).status,
       choice,
       hasVoted: choice !== null,
       no,

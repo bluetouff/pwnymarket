@@ -110,6 +110,7 @@ void test('ledger is durable, unique and contains no raw IP', () => {
   assert.equal(store.record(ACTIVE_MARKET_ID, voterKey, 'yes'), true);
   assert.equal(store.record(ACTIVE_MARKET_ID, voterKey, 'no'), false);
   assert.deepEqual(store.summary(ACTIVE_MARKET_ID, voterKey), {
+    status: 'open',
     choice: 'yes',
     hasVoted: true,
     no: 0,
@@ -218,7 +219,7 @@ void test('privacy is short visitor copy and every public footer credits the cre
     assert.match(html, /<span class="brand-domain">\.fr<\/span/);
     assert.match(html, /href="\/archives"/);
     assert.match(html, /href="https:\/\/l0g\.fr\/">l0g\.fr<\/a>/);
-    assert.match(html, /rel="stylesheet" href="\/assets\/v8\/styles\.css"/);
+    assert.match(html, /rel="stylesheet" href="\/assets\/v9\/styles\.css"/);
   }
   const css = readFileSync(
     new URL('../runtime/public/styles.css', import.meta.url),
@@ -412,7 +413,7 @@ void test('Unix-socket API accepts one vote and rejects a duplicate', async (con
     assert.equal(page.status, 200);
     assert.ok(page.body.includes(renderShareLinks(path)), path);
     assert.doesNotMatch(page.body, /SHARE_LINKS/);
-    assert.match(page.body, /href="\/assets\/v8\/styles\.css"/);
+    assert.match(page.body, /href="\/assets\/v9\/styles\.css"/);
     assert.equal(page.headers['x-dns-prefetch-control'], 'off');
     assert.equal(page.headers['referrer-policy'], 'no-referrer');
     assert.equal(page.headers['set-cookie'], undefined);

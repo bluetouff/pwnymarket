@@ -24,6 +24,37 @@ La prévisualisation crée un registre temporaire et un secret éphémère. Pour
 
 Le prototype React est conservé dans `app/` et se lance avec `npm run dev`.
 
+## Dossiers, classement et bulletin
+
+Chaque marché possède une page `/m/<identifiant>` et des partages directs.
+Le marché du jour suit une rotation UTC parmi les urnes ouvertes. Les tris
+utilisent les votes enregistrés ; les classements par partage des voix et
+consensus exigent cinq bulletins. L’indice de déni vaut
+`200 × min(OUI, NON) / total`, arrondi à l’unité, et reste absent sans vote.
+Le flux `/feed.xml` publie le catalogue, les clôtures et les résolutions.
+Son historique initial reprend l’instantané du catalogue du 3 septembre 2026.
+
+## Clôturer un marché
+
+Les décisions éditoriales sont ajoutées à `runtime/market-events.json`, puis
+validées avec les tests. Le serveur ne propose aucune route d’administration.
+Un événement `closed` contient `marketId`, `type`, `at` et `reason`. Un événement
+`resolved` ultérieur contient `marketId`, `type`, `at`, `choice` (`yes` ou `no`),
+`summary` et `source` (`url`, `title`, `publishedAt`). Les dates suivent le format
+UTC `YYYY-MM-DDTHH:mm:ss.sssZ`.
+
+La résolution exige une clôture préalable et une publication officielle
+postérieure à l’ouverture qui satisfait le critère visible sur la page.
+Les domaines de sources sont limités à `.gouv.fr` et aux éditeurs officiels déjà
+vérifiés dans les archives. Cette validation d’URL complète la vérification
+éditoriale du contenu de la source. Aucun résultat n’est généré automatiquement.
+
+La fermeture prend effet lorsque la version contenant l’événement est publiée.
+Les bulletins déjà acceptés sont conservés et le serveur refuse les suivants,
+y compris depuis une page restée ouverte. Conserver les identifiants et les
+événements antérieurs lors des évolutions. Ajouter `publishedAt` et, si nécessaire,
+un `criteria` spécifique à chaque nouveau marché dans `runtime/public/markets.js`.
+
 ## Vérifications
 
 ```bash

@@ -2,26 +2,43 @@ import { randomBytes } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { existsSync, mkdtempSync } from 'node:fs';
 import { createServer, request } from 'node:http';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
+import { fileURLToPath } from 'node:url';
 
-const directory = mkdtempSync('/private/tmp/pwny-preview-');
+const args = process.argv.slice(2);
+if (
+  args.length &&
+  (args.length !== 2 || args[0] !== '--port' || !/^[0-9]{1,5}$/.test(args[1]))
+)
+  throw new Error('Usage: node runtime/preview.mjs [--port 4173]');
+const port = args.length ? Number(args[1]) : 4173;
+if (port < 1 || port > 65535) throw new Error('Invalid preview port');
+const directory = mkdtempSync(join(tmpdir(), 'pwny-'));
 const socketPath = join(directory, 'app.sock');
-const origin = 'http://127.0.0.1:4173';
-const child = spawn(process.execPath, ['runtime/server.mjs'], {
-  env: {
-    ...process.env,
-    PWNYMARKET_SOCKET: socketPath,
-    PWNYMARKET_LEDGER: join(directory, 'votes.ndjson'),
-    PWNYMARKET_PUBLIC_ORIGIN: origin,
-    VOTE_HASH_SECRET: randomBytes(32).toString('hex'),
-    VOTE_HASH_NAMESPACE: 'pwnymarket-preview-v1',
+if (Buffer.byteLength(socketPath) > 103)
+  throw new Error('Preview temporary path is too long; use a shorter TMPDIR');
+const authority = `127.0.0.1:${port}`;
+const origin = `http://${authority}`;
+const child = spawn(
+  process.execPath,
+  [fileURLToPath(new URL('./server.mjs', import.meta.url))],
+  {
+    env: {
+      ...process.env,
+      PWNYMARKET_SOCKET: socketPath,
+      PWNYMARKET_LEDGER: join(directory, 'votes.ndjson'),
+      PWNYMARKET_PUBLIC_ORIGIN: origin,
+      VOTE_HASH_SECRET: randomBytes(32).toString('hex'),
+      VOTE_HASH_NAMESPACE: 'pwnymarket-preview-v1',
+    },
+    stdio: 'ignore',
   },
-  stdio: 'ignore',
-});
+);
 let stopping = false;
 const proxy = createServer((incoming, outgoing) => {
-  if (incoming.headers.host !== '127.0.0.1:4173') {
+  if (incoming.headers.host !== authority) {
     outgoing.writeHead(403);
     outgoing.end();
     return;
@@ -81,7 +98,7 @@ if (!existsSync(socketPath)) {
   stop();
   throw new Error('Local runtime unavailable');
 }
-proxy.listen(4173, '127.0.0.1', () =>
+proxy.listen(port, '127.0.0.1', () =>
   process.stdout.write(
     'PwnyMarket local preview: ' + origin + '/ (isolated votes)\n',
   ),

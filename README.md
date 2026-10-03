@@ -16,13 +16,24 @@ Le site est indépendant de Polymarket et de l’administration française. Les 
 Le dossier `runtime/` contient le site et son moteur de vote, sans dépendance npm à l’exécution. Avec une version LTS corrigée de Node.js :
 
 ```bash
-npm ci
-npm run dev:runtime
+npm run dev
 ```
 
 La prévisualisation crée un registre temporaire et un secret éphémère. Pour lancer directement `runtime/server.mjs`, fournir `PWNYMARKET_SOCKET`, `PWNYMARKET_LEDGER`, `PWNYMARKET_PUBLIC_ORIGIN`, `VOTE_HASH_SECRET` et `VOTE_HASH_NAMESPACE`. Les deux chemins doivent être absolus. Le secret et l’espace de nommage doivent rester stables pendant toute la vie d’un registre de votes.
 
-Le prototype React est conservé dans `app/` et se lance avec `npm run dev`.
+La prévisualisation écoute uniquement sur `http://127.0.0.1:4173`.
+Un autre port local peut être choisi avec `npm run dev -- --port 4174`.
+`npm run dev:runtime` reste un alias. `npm start` lance le serveur avec la
+configuration fournie par l'environnement.
+
+Le prototype React/Cloudflare a été retiré du projet actif. Son code reste
+récupérable dans l'historique Git. Les seuls paquets npm conservés servent au
+lint et au formatage ; `npm ci` les installe pour le développement.
+
+`npm run build` vérifie la syntaxe JavaScript et crée une copie autonome du
+runtime dans un nouveau dossier `dist/pwnymarket-*`, avec les licences et un
+manifeste SHA-256. Les fichiers du site sont copiés sans transformation.
+Le paquet généré ne contient ni dépendances npm, ni configuration privée.
 
 ## Dossiers, classement et bulletin
 
@@ -58,10 +69,13 @@ un `criteria` spécifique à chaque nouveau marché dans `runtime/public/markets
 ## Vérifications
 
 ```bash
+npm ci
 npm run test:runtime
 npm run test:security
+npm run test:dependencies
 npm run lint
 npm run build
+npm audit
 ```
 
 ## Sources

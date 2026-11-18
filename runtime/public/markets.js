@@ -1,3 +1,32 @@
+const shellPublication = {
+  publishedAt: '2026-11-18T15:18:00.000Z',
+  criteria:
+    'OUI : une publication officielle postérieure à l’ouverture atteste précisément la scène administrative décrite dans la question. NON : elle en établit explicitement le contraire. La présence d’une technologie, un avis de sécurité ou une panne ne suffisent pas à confirmer la scène. Sans preuve, le résultat reste en attente.',
+};
+const javaContext =
+  'Java4Shell (CVE-2026-114938), publiée le 17 novembre 2026, touche le décodage Base64 de certaines JVM sur processeurs x86-64 avec AVX-512 VBMI. La seule présence de Java ne démontre aucune exposition.';
+const nodeContext =
+  'L’avis Node.js du 21 octobre 2026 décrit CVE-2026-111497, la faille Brotli surnommée Node4Shell. Son exploitation suppose que l’application décompresse des données hostiles avec une version affectée.';
+const phpContext =
+  'PHP2Shell désigne CVE-2026-109618 et CVE-2026-109619, corrigées par PHP le 21 octobre 2026. Le moteur PHP est concerné ; Drupal ne permet pas de connaître la version ni les correctifs du serveur.';
+const javaAdvisory = {
+  title: 'Calif : Java4Shell, recherche originale du 17 novembre 2026',
+  url: 'https://calif.io/java4shell/',
+};
+const nodeAdvisory = {
+  title: 'Node.js : avis de sécurité du 21 octobre 2026, CVE-2026-111497',
+  url: 'https://nodejs.org/en/blog/vulnerability/october-2026-security-releases',
+};
+const phpAdvisory = {
+  title: 'PHP : avis officiel du 21 octobre 2026',
+  url: 'https://www.php.net/archive/2026.php#2026-10-21-5',
+};
+const franceTravailStack = {
+  title:
+    'France Travail : offre DGA Tech du 6 novembre 2026, Java et proxy Node.js',
+  url: 'https://recrute.francetravail.org/offre-de-emploi/emploi-product-manager-f-h_90914.aspx',
+};
+
 export const MARKETS = Object.freeze([
   {
     id: 'impots-next-official-notice',
@@ -9,6 +38,185 @@ export const MARKETS = Object.freeze([
     oracle: 'Screenshot Twitter d’un stagiaire',
     detail: 'Plan B : pile ou face. La pièce appartient au Trésor public.',
     volume: '12 345',
+  },
+  {
+    ...shellPublication,
+    id: 'france-travail-java4shell-cdi',
+    category: 'Cyber-loto',
+    symbol: 'JVM',
+    service: 'France Travail · environnement Java',
+    title:
+      'France Travail proposera-t-il à Java4Shell un CDI « prise de poste immédiate, accès à tout » ?',
+    oracle: 'Un conseiller en reconversion de processus',
+    detail:
+      'La JVM cherche un emploi. Le shell exige deux jours de télétravail et tous les droits dès l’intégration.',
+    volume: '17 017',
+    context:
+      'Une offre de la DGA Tech de France Travail cite Java, Quarkus et Spring Boot parmi les compétences recherchées. Elle ne décrit pas tout le SI. ' +
+      javaContext,
+    sources: [franceTravailStack, javaAdvisory],
+  },
+  {
+    ...shellPublication,
+    id: 'insee-queen-java4shell-recensement',
+    category: 'Cyber-loto',
+    symbol: 'JVM',
+    service: 'Insee · Queen Back Office',
+    title:
+      'L’Insee ajoutera-t-il Java4Shell au questionnaire de Queen, rubrique « autres occupants du serveur » ?',
+    oracle: 'Un enquêteur qui compte les processus à domicile',
+    detail:
+      'Un shell de plus au foyer. Merci de préciser s’il réside en mémoire à titre principal.',
+    volume: '64 064',
+    context:
+      'Le dépôt officiel Queen Back Office de l’Insee documente une API Java, Spring Boot et PostgreSQL pour les interfaces Queen/Stromae. ' +
+      javaContext,
+    sources: [
+      {
+        title: 'Insee : code et prérequis de Queen Back Office',
+        url: 'https://github.com/InseeFr/Queen-Back-Office',
+      },
+      javaAdvisory,
+    ],
+  },
+  {
+    ...shellPublication,
+    id: 'proconnect-node4shell-siret',
+    category: 'Cyber-loto',
+    symbol: 'OIDC',
+    service: 'DINUM · ProConnect Identité',
+    title:
+      'Node4Shell devra-t-il fournir un SIRET pour se faire reconnaître par ProConnect Identité ?',
+    oracle: 'Un shell en profession libérale',
+    detail:
+      'Activité déclarée : exécution de commandes. La chambre des métiers hésite entre informatique et ouverture de portes.',
+    volume: '14 014',
+    context:
+      'Le dépôt officiel décrit ProConnect Identité comme un fournisseur d’identité de la DINUM, avec une application Node.js/Express et des comptes liés à une organisation disposant d’un SIRET. ' +
+      nodeContext,
+    sources: [
+      {
+        title: 'DINUM : architecture et fonctionnement de ProConnect Identité',
+        url: 'https://github.com/proconnect-gouv/proconnect-identite',
+      },
+      nodeAdvisory,
+    ],
+  },
+  {
+    ...shellPublication,
+    id: 'dinum-grist-node4shell-cellule',
+    category: 'Solutions souveraines',
+    symbol: 'CELL',
+    service: 'DINUM · Grist de La Suite numérique',
+    title:
+      'La DINUM suivra-t-elle Node4Shell dans Grist avec une colonne « responsable » intégralement vide ?',
+    oracle: 'La cellule B42, promue cellule de crise',
+    detail:
+      'La cellule « correctif » attend sa formule. La cellule de crise a déjà son onglet.',
+    volume: '65 536',
+    context:
+      'La Suite numérique propose une instance interministérielle de Grist. Le code de Grist documente un serveur Node.js et un moteur de formules Python isolé. ' +
+      nodeContext,
+    sources: [
+      {
+        title:
+          'La Suite numérique : présentation de Grist et instance interministérielle',
+        url: 'https://lasuite.numerique.gouv.fr/services/grist',
+      },
+      {
+        title:
+          'Grist Labs : architecture du serveur Node.js et du moteur Python',
+        url: 'https://github.com/gristlabs/grist-core/blob/main/documentation/overview.md',
+      },
+      nodeAdvisory,
+    ],
+  },
+  {
+    ...shellPublication,
+    id: 'france-travail-node4shell-proxy',
+    category: 'Cyber-loto',
+    symbol: 'BR',
+    service: 'France Travail · proxy Node.js / TypeScript',
+    title:
+      'Chez France Travail, Node4Shell sera-t-il réorienté vers le proxy parce que son dossier est trop compressé ?',
+    oracle: 'Brotli, demandeur de décompression',
+    detail:
+      'Brotli est convoqué à un entretien. Motif : décompression sans projet professionnel.',
+    volume: '22 024',
+    context:
+      'Une offre de la DGA Tech de France Travail mentionne explicitement le maintien en condition opérationnelle d’une brique de proxy Node.js/TypeScript. ' +
+      nodeContext,
+    sources: [franceTravailStack, nodeAdvisory],
+  },
+  {
+    ...shellPublication,
+    id: 'impots-php2shell-revenus',
+    category: 'Cyber-loto',
+    symbol: 'PHP',
+    service: 'DGFiP · portail éditorial impots.gouv.fr',
+    title:
+      'Les impôts demanderont-ils à PHP2Shell de déclarer son shell dans la case « revenus non salariés » ?',
+    oracle: 'Un inspecteur des privilèges non déclarés',
+    detail:
+      'Drupal prépare la 2042-RCE. Le barème des privilèges sera publié après arbitrage de Bercy.',
+    volume: '20 042',
+    context:
+      'La déclaration d’accessibilité d’impots.gouv.fr cite Drupal, un CMS PHP, pour le portail public. Cela ne décrit pas la stack des espaces fiscaux authentifiés. ' +
+      phpContext,
+    sources: [
+      {
+        title: 'DGFiP : technologies déclarées pour le portail impots.gouv.fr',
+        url: 'https://www.impots.gouv.fr/accessibilite',
+      },
+      phpAdvisory,
+    ],
+  },
+  {
+    ...shellPublication,
+    id: 'eduscol-php2shell-baccalaureat',
+    category: 'Cyber-loto',
+    symbol: 'PHP',
+    service: 'Éducation nationale · Éduscol STI',
+    title:
+      'Éduscol STI mettra-t-il PHP2Shell au programme du bac, option « accès au serveur sans lever la main » ?',
+    oracle: 'Un jury qui exige de rendre le shell en fin d’épreuve',
+    detail:
+      'Le sujet porte sur PHP. Toute réponse justifiée par « ça marchait l’année dernière » vaut zéro.',
+    volume: '20 020',
+    context:
+      'Les mentions légales d’Éduscol STI indiquent Drupal 7. Cette déclaration concerne ce sous-site pédagogique ; elle ne décrit pas tous les services de l’Éducation nationale. ' +
+      phpContext,
+    sources: [
+      {
+        title: 'Éduscol STI : mentions légales et CMS déclaré',
+        url: 'https://sti.eduscol.education.fr/mentions_legales',
+      },
+      phpAdvisory,
+    ],
+  },
+  {
+    ...shellPublication,
+    id: 'bercy-php2shell-prestataire',
+    category: 'Bureaucratie',
+    symbol: 'PHP',
+    service: 'Bercy · portail economie.gouv.fr',
+    title:
+      'Bercy inscrira-t-il PHP2Shell comme prestataire Drupal au lieu de le faire sortir du portail ?',
+    oracle: 'Un bon de commande avec accès root',
+    detail:
+      'Le shell a fourni son RIB. Le bon de commande dit « maintenance évolutive en autonomie complète ».',
+    volume: '40 000',
+    context:
+      'La formation officielle de l’IGPDE pour les responsables éditoriaux d’economie.gouv.fr décrit des sites sous Drupal, un CMS PHP. Ce périmètre éditorial ne décrit pas les applications financières de Bercy. ' +
+      phpContext,
+    sources: [
+      {
+        title:
+          'IGPDE : formation au portail economie.gouv.fr et environnement Drupal',
+        url: 'https://catalogue.igpde.finances.gouv.fr/1881-etre-responsable-editorial-sur-le-portail-economiegouvfr.html',
+      },
+      phpAdvisory,
+    ],
   },
   {
     id: 'printer-runs-doom',

@@ -59,6 +59,25 @@ function resolution(market) {
 <p class="muted">Publication officielle du ${date(result.source.publishedAt)}.</p>`;
 }
 
+function sources(market) {
+  if (!market.context || !Array.isArray(market.sources)) return '';
+  const links = market.sources.flatMap((source) => {
+    try {
+      const url = new URL(source.url);
+      if (url.protocol !== 'https:' || url.username || url.password || url.port)
+        return [];
+      return `<li><a href="${esc(url.href)}" rel="noopener noreferrer" referrerpolicy="no-referrer">${esc(source.title)} ↗</a></li>`;
+    } catch {
+      return [];
+    }
+  });
+  return `<section class="market-sources" aria-labelledby="sources-title">
+<p class="eyebrow">La stack derrière la vanne</p><h2 id="sources-title">Du code réel, un scénario absurde</h2>
+<p>${esc(market.context)}</p>
+<p class="muted">Sources consultées le <time datetime="${esc(market.publishedAt)}">${date(market.publishedAt)}</time>. Versions, correctifs et configuration de production non vérifiés. Le scénario soumis au vote est fictif ; ces sources n’établissent aucun piratage du service cité.</p>
+<ul>${links.join('')}</ul></section>`;
+}
+
 export function renderMarketPage(market) {
   const title = market.title + ' · PwnyMarket.fr';
   const main = `<a class="back-link" href="/#markets">← Retour à la salle des non-marchés</a>
@@ -67,7 +86,7 @@ export function renderMarketPage(market) {
 <h1 id="market-title">${esc(market.title)}</h1><p class="daily-detail">${esc(market.detail)}</p>
 <p class="muted">Parodie · votes réels · aucun gain.</p></article>${ballot(market)}</section>
 <section class="market-rules"><div><p class="eyebrow">Le règlement tient sur un Cerfa</p><h2>Ce qui permet de trancher</h2><p>${esc(market.criteria)}</p>
-<p class="muted">L’oracle satirique est décoratif. Le verdict documenté repose sur la publication citée.</p></div><div><p class="eyebrow">État du dossier</p><h2>${STATUS_LABELS[market.status]}</h2>${resolution(market)}</div></section>
+<p class="muted">L’oracle satirique est décoratif. Le verdict documenté repose sur la publication citée.</p></div><div><p class="eyebrow">État du dossier</p><h2>${STATUS_LABELS[market.status]}</h2>${resolution(market)}</div></section>${sources(market)}
 <noscript><p>Le dossier et ses sources sont consultables ici. Activez JavaScript pour lire le décompte et voter.</p></noscript>`;
   const replacements = new Map([
     ['<!-- PAGE_TITLE -->', esc(title)],

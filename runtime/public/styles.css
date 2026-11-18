@@ -1688,6 +1688,29 @@ progress::-moz-progress-bar {
 .market-rules a {
   overflow-wrap: anywhere;
 }
+.market-sources {
+  max-width: 900px;
+  margin: 40px 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.market-sources h2 {
+  font-size: 1.3rem;
+  letter-spacing: -0.03em;
+}
+.market-sources ul {
+  padding-left: 20px;
+}
+.market-sources li + li {
+  margin-top: 8px;
+}
+.market-sources a {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 .resolution-verdict {
   font-weight: 750;
   color: var(--red);

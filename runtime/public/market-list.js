@@ -23,6 +23,7 @@ export function getMarketPage(
           market.detail,
           market.oracle,
           market.symbol,
+          market.context,
         ].join(' '),
       ).includes(needle),
   );

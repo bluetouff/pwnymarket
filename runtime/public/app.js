@@ -80,7 +80,11 @@ for (const market of grid ? MARKETS : []) {
   marketState.dataset.marketState = '';
   const denial = element('p', 'denial');
   denial.dataset.denial = '';
-  const dossier = element('a', 'card-link', 'Dossier & partage ↗');
+  const dossier = element(
+    'a',
+    'card-link',
+    market.context ? 'Dossier sourcé & partage ↗' : 'Dossier & partage ↗',
+  );
   dossier.href = '/m/' + market.id;
   card.append(
     head,

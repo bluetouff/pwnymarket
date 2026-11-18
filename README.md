@@ -45,6 +45,13 @@ consensus exigent cinq bulletins. L’indice de déni vaut
 Le flux `/feed.xml` publie le catalogue, les clôtures et les résolutions.
 Son historique initial reprend l’instantané du catalogue du 3 septembre 2026.
 
+Les marchés Java4Shell, Node4Shell et PHP2Shell du 18 novembre 2026 citent les
+sources publiques de la stack et les avis de sécurité dans leur dossier.
+Le périmètre documenté peut être un sous-site, un dépôt ou une offre de la DSI ;
+il ne prouve aucune vulnérabilité de production. La recherche accepte aussi
+les identifiants CVE. Les nouveaux marchés conservent leur date propre dans
+le flux RSS et tous les identifiants de vote antérieurs sont conservés.
+
 ## Clôturer un marché
 
 Les décisions éditoriales sont ajoutées à `runtime/market-events.json`, puis

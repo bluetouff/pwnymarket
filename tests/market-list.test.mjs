@@ -9,6 +9,26 @@ import {
 
 const originalIds = [
   'impots-next-official-notice',
+  'printer-runs-doom',
+  'vim-before-retirement',
+  'ransomware-needs-siret',
+  'bug-bounty-tote-bag',
+  'kubernetes-canteen',
+  'soc-coffee-critical',
+  'sudo-cerfa',
+  'zero-trust-colleagues',
+  'temporary-password-birthday',
+  'airgap-coffee-usb',
+  'pentest-one-useful-page',
+  'siem-mark-all-read',
+  'backup-on-same-nas',
+  'hoodie-tv-expert',
+  'cookies-49-clicks',
+  'reboot-resilience-consulting',
+  'flipper-parking-threat',
+  'minitel-post-quantum',
+  'rssi-friday-holidays',
+  'ctf-find-cyber-invoice',
   'maintenance-before-incident',
   'friday-1759',
   'password-reset-reaction',
@@ -22,9 +42,9 @@ const originalIds = [
   'no-sensitive-data',
 ];
 
-test('twenty additional satirical markets keep every existing vote identifier', () => {
-  assert.equal(MARKETS.length, 32);
-  assert.equal(new Set(MARKETS.map((market) => market.id)).size, 32);
+test('eight sourced shell markets keep every existing vote identifier', () => {
+  assert.equal(MARKETS.length, 40);
+  assert.equal(new Set(MARKETS.map((market) => market.id)).size, 40);
   assert.equal(MARKETS[0].id, originalIds[0]);
   for (const id of originalIds)
     assert.ok(
@@ -33,14 +53,14 @@ test('twenty additional satirical markets keep every existing vote identifier', 
     );
   assert.equal(
     MARKETS.filter((market) => !originalIds.includes(market.id)).length,
-    20,
+    8,
   );
   const html = readFileSync(
     new URL('../runtime/public/index.html', import.meta.url),
     'utf8',
   );
-  assert.match(html, /32 marchés · 0 expert/);
-  assert.match(html, /parcourir les 32 marchés/);
+  assert.match(html, /40 marchés · 0 expert/);
+  assert.match(html, /parcourir les 40 marchés/);
   const categories = new Set(
     [...html.matchAll(/data-filter="([^"]+)"/g)].map((match) => match[1]),
   );
@@ -71,7 +91,7 @@ test('ten markets per page cover the complete catalogue without gaps or duplicat
   const pages = [1, 2, 3, 4].map((page) => getMarketPage(MARKETS, { page }));
   assert.deepEqual(
     pages.map((view) => view.items.length),
-    [10, 10, 10, 2],
+    [10, 10, 10, 10],
   );
   assert.deepEqual(
     pages.map((view) => [view.from, view.to]),
@@ -79,7 +99,7 @@ test('ten markets per page cover the complete catalogue without gaps or duplicat
       [1, 10],
       [11, 20],
       [21, 30],
-      [31, 32],
+      [31, 40],
     ],
   );
   assert.deepEqual(
@@ -87,11 +107,38 @@ test('ten markets per page cover the complete catalogue without gaps or duplicat
     MARKETS,
   );
   for (const [index, view] of pages.entries()) {
-    assert.equal(view.total, 32);
+    assert.equal(view.total, 40);
     assert.equal(view.totalPages, 4);
     assert.equal(view.page, index + 1);
   }
   assert.equal(JSON.stringify(MARKETS), before);
+});
+
+test('shell markets expose dated stack evidence and are searchable by CVE', () => {
+  const added = MARKETS.filter((market) => !originalIds.includes(market.id));
+  for (const market of added) {
+    assert.equal(market.publishedAt, '2026-11-18T15:18:00.000Z');
+    assert.match(market.context, /CVE-2026-/);
+    assert.match(market.criteria, /La présence d’une technologie/);
+    assert.ok(market.sources.length >= 2);
+    for (const source of market.sources) {
+      assert.ok(source.title.length > 0);
+      const url = new URL(source.url);
+      assert.equal(url.protocol, 'https:');
+      assert.equal(url.username + url.password + url.port, '');
+    }
+  }
+  for (const [query, expected] of [
+    ['CVE-2026-114938', 2],
+    ['CVE-2026-111497', 3],
+    ['CVE-2026-109618', 3],
+    ['CVE-2026-109619', 3],
+  ])
+    assert.equal(getMarketPage(MARKETS, { query }).total, expected);
+  assert.equal(
+    getMarketPage(MARKETS, { query: 'PostgreSQL' }).items[0].id,
+    'insee-queen-java4shell-recensement',
+  );
 });
 
 test('category and text filtering happen before pagination', () => {

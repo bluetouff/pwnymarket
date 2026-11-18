@@ -46,7 +46,7 @@ const resolveEvent = {
     publishedAt: '2026-09-04T10:00:00.000Z',
   },
 };
-const now = Date.parse('2026-09-06T00:00:00.000Z');
+const now = Date.parse('2026-11-19T00:00:00.000Z');
 
 function summary(yes, no) {
   const total = yes + no;
@@ -137,7 +137,7 @@ test('editorial lifecycle requires an ordered closure and dated official evidenc
   const catalogue = createCatalogue(MARKETS, [closeEvent, resolveEvent], now);
   assert.equal(catalogue.get(id).status, 'resolved');
   assert.equal(catalogue.get(id).resolution.choice, 'yes');
-  assert.equal(catalogue.size, 32);
+  assert.equal(catalogue.size, MARKETS.length);
   for (const events of [
     [resolveEvent],
     [closeEvent, closeEvent],
@@ -228,20 +228,67 @@ test('market metadata and shares target each record and safely escape editorial 
   assert.match(bad, /&lt;script&gt;/);
 });
 
+test('dossiers show stack evidence, escape source text and reject unsafe links', () => {
+  for (const market of CATALOGUE.values()) {
+    const html = renderMarketPage(market);
+    assert.equal(
+      html.includes('La stack derrière la vanne'),
+      Boolean(market.context),
+    );
+    if (!market.context) continue;
+    assert.match(
+      html,
+      /Versions, correctifs et configuration de production non vérifiés/,
+    );
+    assert.match(html, /ces sources n’établissent aucun piratage/);
+    assert.match(html, /18 novembre 2026/);
+    for (const source of market.sources)
+      assert.ok(html.includes(source.url), source.url);
+  }
+  const unsafe = [
+    'javascript:alert(1)',
+    'data:text/html,<script>alert(1)</script>',
+    '//evil.example/test',
+    '/relative',
+    'http://example.org/',
+    'https://user:password@example.org/',
+    'https://example.org:8443/',
+    'not a URL',
+  ];
+  const html = renderMarketPage({
+    ...CATALOGUE.get(id),
+    context: '<img src=x onerror=alert(1)>',
+    sources: [
+      ...unsafe.map((url) => ({ title: 'Unsafe source', url })),
+      { title: '<script>bad()</script>', url: 'https://example.org/?a=1&b=2' },
+      null,
+    ],
+  });
+  assert.doesNotMatch(html, /Unsafe source|<img src=x|<script>bad/);
+  assert.match(html, /&lt;img src=x/);
+  assert.match(html, /href="https:\/\/example.org\/\?a=1&amp;b=2"/);
+  assert.match(html, /&lt;script&gt;bad\(\)&lt;\/script&gt;/);
+});
+
 test('RSS has stable publication and lifecycle entries with safely encoded content', () => {
   const catalogue = createCatalogue(MARKETS, [closeEvent, resolveEvent], now);
   const feed = renderFeed(catalogue, [closeEvent, resolveEvent]);
-  assert.equal((feed.match(/<item>/g) || []).length, 34);
+  assert.equal((feed.match(/<item>/g) || []).length, MARKETS.length + 2);
   assert.equal(
     new Set(
       [...feed.matchAll(/<guid isPermaLink="false">([^<]+)<\/guid>/g)].map(
         (m) => m[1],
       ),
     ).size,
-    34,
+    MARKETS.length + 2,
   );
   assert.match(feed, /https:\/\/pwnymarket.fr\/m\/impots-next-official-notice/);
   assert.match(feed, /fixture-only/);
+  assert.ok(
+    feed.indexOf('france-travail-java4shell-cdi') <
+      feed.indexOf('fixture-only'),
+  );
+  assert.match(feed, /Wed, 18 Nov 2026 15:18:00 GMT/);
   assert.doesNotMatch(feed, /voterKey|choice:|undefined|<script/);
   const bad = new Map([
     [

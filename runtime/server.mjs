@@ -81,7 +81,8 @@ for (const path of [
   '/market-tools.js',
   '/styles.css',
 ]) {
-  assets.set('/assets/v9' + path, assets.get(path));
+  for (const version of ['v9', 'v10'])
+    assets.set('/assets/' + version + path, assets.get(path));
 }
 // Older HTML may still request modules from an earlier namespace.
 for (const version of ['v2', 'v8'])
